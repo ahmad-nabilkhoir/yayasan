@@ -1,0 +1,10 @@
+/* Efek saat kartu jenjang disorot mouse */
+.card:hover {
+    transform: translateY(-10px); /* Naik ke atas sedikit */
+    box-shadow: 0 1rem 3rem rgba(0,0,0,.175)!important; /* Bayangan makin tebal */
+}
+
+/* Efek Zoom saat hover gambar video */
+.group-hover-scale:hover img {
+    transform: scale(1.05); /* Gambar membesar dikit */
+}

@@ -1,0 +1,186 @@
+/* ================= RESET LAYOUT ================= */
+html,
+body {
+    width: 100%;
+    overflow-x: hidden;
+}
+
+main,
+section {
+    overflow-x: hidden;
+}
+
+/* ================= HERO (SAMA KAYAK CODE LAMA) ================= */
+.hero-section img {
+    width: 100%;
+    height: 520px;
+    object-fit: cover;
+    display: block;
+}
+
+/* ================= IMAGE GLOBAL FIX ================= */
+/* Meniru wrapper position-relative + overflow-hidden */
+section img.img-fluid,
+section img.w-100 {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* Default tinggi image kegiatan (senam, santri) */
+section.bg-white img {
+    height: 280px;
+    border-radius: 1rem;
+    object-fit: cover;
+}
+
+/* ================= JENJANG SEKOLAH ================= */
+section[style*="#1635BD"] .card img {
+    height: 250px;
+    object-fit: cover;
+}
+
+section[style*="#1635BD"] .card {
+    background: transparent;
+}
+
+/* ================= VISI MISI ================= */
+section[style*="bg-visi-misi"] {
+    position: relative;
+}
+
+section[style*="bg-visi-misi"]::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: rgba(255, 255, 255, 0.25);
+}
+
+section[style*="bg-visi-misi"]>.container {
+    position: relative;
+    z-index: 1;
+}
+
+/* ================= PRESTASI ================= */
+section[style*="#f5f7fa"] .card img {
+    height: 220px;
+    object-fit: cover;
+}
+
+/* ================= PIMPINAN ================= */
+img[alt="Pimpinan Yayasan"] {
+    height: 350px;
+    object-fit: cover;
+    border-radius: 1rem;
+}
+
+/* ================= TESTIMONI ================= */
+.carousel {
+    max-width: 900px;
+    margin: auto;
+}
+
+.carousel .card {
+    border-radius: 1.25rem;
+}
+
+/* ================= SPACING MIRIP CODE LAMA ================= */
+@media (min-width: 768px) {
+    .row>.col-md-6:first-child {
+        padding-right: 2.5rem;
+    }
+
+    .row>.col-md-6:last-child {
+        padding-left: 2.5rem;
+    }
+}
+
+/* ================= MOBILE ================= */
+@media (max-width: 768px) {
+    .hero-section img {
+        height: 320px;
+    }
+
+    section.bg-white img {
+        height: 220px;
+    }
+
+    /* ================= BACKGROUND GRADIENT CUSTOM (PINDAHKAN KE SINI) ================= */
+    .bg-ulasan-smooth {
+        background-image: url('../img/image_fb4f80.jpg');
+        /* Pastikan path benar */
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        position: relative;
+        min-height: 80vh;
+        display: flex;
+        align-items: center;
+    }
+
+    /* Overlay agar teks tetap terbaca */
+    .bg-ulasan-smooth::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: rgba(255, 255, 255, 0.1);
+        z-index: 0;
+    }
+
+    .bg-ulasan-smooth>.container {
+        position: relative;
+        z-index: 1;
+    }
+
+    /* Stacking effect kartu di belakang */
+    .card-stack-effect {
+        position: relative;
+        z-index: 2;
+    }
+
+    .card-stack-effect::before {
+        content: "";
+        position: absolute;
+        width: 95%;
+        height: 100%;
+        background: rgba(255, 255, 255, 0.4);
+        border-radius: 2rem;
+        top: 10px;
+        left: 50%;
+        transform: translateX(-50%) rotate(-2deg);
+        z-index: -1;
+    }
+
+    /* ================= TESTIMONI CAROUSEL ================= */
+    .carousel {
+        max-width: 900px;
+        margin: auto;
+    }
+
+    .carousel-item {
+        transition: transform 0.8s ease-in-out, opacity 0.8s ease-in-out;
+    }
+
+    /* ================= HERO & LAINNYA ================= */
+    .hero-section img {
+        width: 100%;
+        height: 520px;
+        object-fit: cover;
+        display: block;
+    }
+
+    /* ================= MOBILE FIX ================= */
+    @media (max-width: 768px) {
+        .hero-section img {
+            height: 320px;
+        }
+
+        .carousel-control-prev {
+            left: 0 !important;
+        }
+
+        .carousel-control-next {
+            right: 0 !important;
+        }
+    }
+}
