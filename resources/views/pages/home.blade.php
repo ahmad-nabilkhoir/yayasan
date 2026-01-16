@@ -28,7 +28,7 @@
                     <h2 class="fw-bold mb-4" style="color: #002366; letter-spacing: 2px;">MOTTO</h2>
                     <div class="d-inline-block rounded-pill mb-5 px-5 py-3 shadow-sm"
                         style="background: linear-gradient(180deg, #f8fbff 0%, #97d2ff 100% ); ">
-                        <h3 class="fw-italic text-dark mb-0" style="font-size: 1.8rem;">"Berakhlak, Berilmu, Berdaya"</h3>
+                        <h3 class="fw-bold text-dark mb-0" style="font-size: 1.8rem;">Berakhlak, Berilmu, Berdaya</h3>
                     </div>
                 </div>
 
@@ -42,7 +42,7 @@
                             </div>
                             <h2 class="fw-bold mb-3" style="color: #002366;">VISI</h2>
                             <p class="fs-5 text-dark lh-base">
-                                "Menjadi Sekolah Islam yang memiliki karakter Profetik."
+                                Menjadi Sekolah Islam yang memiliki karakter Profetik.
                             </p>
                         </div>
                     </div>
@@ -579,15 +579,18 @@
 
                         <div class="mt-5 pt-4">
                             <a href="{{ route('kegiatan.index') }}"
-                                class="btn btn-primary btn-lg d-inline-flex align-items-center justify-content-center position-relative shadow-lg"
+                                class="btn btn-primary btn-lg d-flex align-items-center justify-content-center position-relative overflow-hidden"
                                 style="
-                                    padding: 1rem 2.5rem;
                                     background: linear-gradient(135deg, #1a44cc 0%, #002366 100%);
-                                    border-radius: 12px;
-                                    font-weight: 600;
                                     border: none;
+                                    border-radius: 50px;
+                                    padding: 1rem 2rem;
+                                    font-weight: 600;
+                                    min-width: 220px;
+                                    transition: all 0.3s ease;
+                                    box-shadow: 0 10px 25px rgba(26, 68, 204, 0.25);
                                 ">
-                                <span class="me-2">📋</span>
+
                                 <span>Lihat Semua Kegiatan</span>
                                 <span class="d-flex align-items-center justify-content-center ms-3"
                                     style="
@@ -599,10 +602,6 @@
                                     <i class="bi bi-arrow-right-short"></i>
                                 </span>
                             </a>
-
-                            <p class="text-muted small mt-3" style="font-size: 0.9rem;">
-                                Temukan lebih banyak kegiatan menarik lainnya
-                            </p>
                         </div>
                     </div>
 
@@ -771,8 +770,6 @@
         </div>
     </section>
 
-
-    {{-- ================= ARTIKEL TERBARU ================= --}}
     {{-- ================= ARTIKEL TERBARU ================= --}}
     <section class="py-5" style="background-color: #f8fbff; border-radius: 0 0 50px 50px;">
         <div class="container py-5">

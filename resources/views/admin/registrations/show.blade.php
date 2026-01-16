@@ -307,7 +307,7 @@
                         @if ($registration->catatan_admin)
                             <div class="admin-card">
                                 <div class="card-body">
-                                    <div class="whitespace-pre-line">{{ $registration->catatan_admin }}</div>
+                                    <div style="white-space: pre-line;">{{ $registration->catatan_admin }}</div>
                                 </div>
                             </div>
                         @else

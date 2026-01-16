@@ -679,6 +679,219 @@
             @yield('content')
         </main>
 
+        {{-- Chatbox Interaktif Gemini - Yayasan Baitul Insan --}}
+        <div id="chatbox-container" class="position-fixed bottom-0 end-0 p-3" style="z-index: 1050;">
+            {{-- Tombol Buka Chat --}}
+            <button id="chat-toggle" class="btn btn-primary rounded-circle shadow-lg"
+                style="width: 60px; height: 60px;">
+                <i class="bi bi-chat-dots-fill fs-3"></i>
+            </button>
+
+            {{-- Jendela Chat --}}
+            <div id="chatbox" class="rounded-3 border bg-white shadow-lg"
+                style="width: 340px; display: none; margin-top: 10px; overflow: hidden; transition: all 0.3s ease;">
+
+                {{-- Header --}}
+                <div
+                    class="card-header bg-primary d-flex justify-content-between align-items-center px-3 py-2 text-white">
+                    <span><strong>Asisten Baitul Insan</strong></span>
+                    <button id="close-chat" class="btn btn-sm text-white"
+                        style="font-size: 1.5rem; line-height: 1; border:none; background:none;">&times;</button>
+                </div>
+
+                {{-- Area Pesan --}}
+                <div id="chat-messages" class="p-3"
+                    style="height: 300px; overflow-y: auto; background-color: #f9fafb; display: flex; flex-direction: column;">
+                    <div class="d-flex justify-content-start mb-3">
+                        <div class="bg-primary rounded-3 small p-2 text-white" style="max-width: 90%;">
+                            Halo! Saya asisten AI Yayasan Baitul Insan. Ada yang bisa saya bantu terkait informasi
+                            yayasan?
+                        </div>
+                    </div>
+                </div>
+
+                {{-- Footer & Input --}}
+                <div class="card-footer bg-light p-2">
+                    <div class="input-group mb-2">
+                        <input id="chat-input" type="text" class="form-control form-control-sm shadow-none"
+                            placeholder="Ketik pertanyaan...">
+                        <button id="send-btn" class="btn btn-primary btn-sm">
+                            <i class="bi bi-send"></i>
+                        </button>
+                    </div>
+                    <button id="chat-admin-btn" class="btn btn-success w-100 btn-sm shadow-none">
+                        <i class="bi bi-whatsapp me-1"></i> Chat Admin (WhatsApp)
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <style>
+            /* Styling Bubble Chat */
+            .message-user {
+                background-color: #0d6efd !important;
+                color: white !important;
+                align-self: flex-end;
+                border-bottom-right-radius: 2px !important;
+            }
+
+            .message-bot {
+                background-color: #ffffff !important;
+                color: #212529;
+                border: 1px solid #dee2e6;
+                align-self: flex-start;
+                border-bottom-left-radius: 2px !important;
+            }
+
+            #chat-messages {
+                scrollbar-width: thin;
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            #chat-messages::-webkit-scrollbar {
+                width: 5px;
+            }
+
+            #chat-messages::-webkit-scrollbar-thumb {
+                background: #cbd5e0;
+                border-radius: 10px;
+            }
+
+            .typing-indicator-msg {
+                font-size: 0.75rem;
+                color: #718096;
+                margin-bottom: 10px;
+                align-self: flex-start;
+            }
+        </style>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                const toggleBtn = document.getElementById('chat-toggle');
+                const chatbox = document.getElementById('chatbox');
+                const closeBtn = document.getElementById('close-chat');
+                const chatMessages = document.getElementById('chat-messages');
+                const chatInput = document.getElementById('chat-input');
+                const sendBtn = document.getElementById('send-btn');
+
+                // === KONFIGURASI API (WAJIB GANTI KEY JIKA MASIH ERROR 404/403) ===
+                const API_KEY = "AIzaSyAuTYKGwxJVFuRo1JqgR0LwzRw2tG4HSbM";
+                const ADMIN_PHONE = '6282225832575';
+
+                // === FUNGSI UTAMA GEMINI ===
+                async function getGeminiResponse(userText) {
+                    // Tampilkan indikator loading
+                    const loadingId = "loading-" + Date.now();
+                    const loadingDiv = document.createElement('div');
+                    loadingDiv.id = loadingId;
+                    loadingDiv.className = "typing-indicator-msg";
+                    loadingDiv.innerText = "Asisten sedang mengetik...";
+                    chatMessages.appendChild(loadingDiv);
+                    chatMessages.scrollTop = chatMessages.scrollHeight;
+
+                    try {
+                        // Perbaikan URL: Pastikan menggunakan v1beta dan format generateContent
+                        const url =
+                            `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
+
+                        const response = await fetch(url, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({
+                                contents: [{
+                                    parts: [{
+                                        text: `Instruksi: Kamu adalah asisten pintar Yayasan Baitul Insan. 
+                                Informasi Yayasan:
+                                - Visi: Mencetak generasi Qur’ani yang cerdas dan mandiri.
+                                - Program: Tahfidz Al-Qur'an, STEM Education, Beasiswa Yatim.
+                                - Rekening: Bank Syariah Indonesia (BSI) 123456789 a.n Baitul Insan.
+                                Aturan: Jawablah dengan ramah dalam Bahasa Indonesia. Jika diluar topik yayasan, arahkan kembali ke profil yayasan.
+                                
+                                Pertanyaan user: ${userText}`
+                                    }]
+                                }]
+                            })
+                        });
+
+                        const data = await response.json();
+
+                        // Hapus loading
+                        const loader = document.getElementById(loadingId);
+                        if (loader) loader.remove();
+
+                        // Validasi data respon
+                        if (data.candidates && data.candidates[0].content && data.candidates[0].content.parts) {
+                            const resultText = data.candidates[0].content.parts[0].text;
+                            addMessage(resultText, false);
+                        } else if (data.error) {
+                            console.error("API Error Detail:", data.error);
+                            addMessage("Maaf, ada kendala pada kunci akses API. Mohon hubungi admin.", false);
+                        } else {
+                            addMessage("Maaf, asisten gagal memproses jawaban. Coba lagi ya.", false);
+                        }
+
+                    } catch (error) {
+                        const loader = document.getElementById(loadingId);
+                        if (loader) loader.remove();
+                        addMessage("Koneksi terputus. Pastikan internetmu stabil.", false);
+                        console.error("Gemini Connection Error:", error);
+                    }
+                }
+
+                // === FUNGSI UI ===
+                function addMessage(text, isUser = false) {
+                    const wrapper = document.createElement('div');
+                    wrapper.className = `d-flex ${isUser ? 'justify-content-end' : 'justify-content-start'}`;
+
+                    const msgClass = isUser ? 'message-user' : 'message-bot';
+
+                    wrapper.innerHTML = `
+                <div class="${msgClass} rounded-3 p-2 small shadow-sm" style="max-width: 85%; white-space: pre-wrap; margin-bottom: 5px;">
+                    ${text}
+                </div>
+            `;
+
+                    chatMessages.appendChild(wrapper);
+                    chatMessages.scrollTop = chatMessages.scrollHeight;
+                }
+
+                function handleSend() {
+                    const message = chatInput.value.trim();
+                    if (message) {
+                        addMessage(message, true);
+                        chatInput.value = '';
+                        getGeminiResponse(message);
+                    }
+                }
+
+                // === EVENT LISTENERS ===
+                toggleBtn.addEventListener('click', () => {
+                    chatbox.style.display = chatbox.style.display === 'none' ? 'block' : 'none';
+                    if (chatbox.style.display === 'block') chatInput.focus();
+                });
+
+                closeBtn.addEventListener('click', () => {
+                    chatbox.style.display = 'none';
+                });
+
+                sendBtn.addEventListener('click', handleSend);
+
+                chatInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') handleSend();
+                });
+
+                document.getElementById('chat-admin-btn').addEventListener('click', function() {
+                    const waUrl =
+                        `https://wa.me/${ADMIN_PHONE}?text=Halo%20Admin%20Baitul%20Insan%2C%20saya%20ingin%20bertanya.`;
+                    window.open(waUrl, '_blank');
+                });
+            });
+        </script>
+
         {{-- Footer --}}
         <footer class="bg-primary overflow-hidden text-white" style="margin-top: auto;">
             <div class="container pb-4 pt-5">

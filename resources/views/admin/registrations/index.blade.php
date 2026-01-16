@@ -649,7 +649,6 @@
             const selectAllCheckbox = document.getElementById('selectAllRows');
             const rowCheckboxes = document.querySelectorAll('.row-checkbox');
             const selectAllLabel = document.getElementById('selectAll');
-
             if (selectAllCheckbox) {
                 selectAllCheckbox.addEventListener('change', function() {
                     rowCheckboxes.forEach(checkbox => {
@@ -657,7 +656,6 @@
                     });
                     updateSelectAllLabel();
                 });
-
                 selectAllLabel?.addEventListener('click', function() {
                     selectAllCheckbox.checked = !selectAllCheckbox.checked;
                     selectAllCheckbox.dispatchEvent(new Event('change'));
@@ -679,12 +677,10 @@
                 checkbox.addEventListener('change', function() {
                     const allChecked = Array.from(rowCheckboxes).every(cb => cb.checked);
                     const someChecked = Array.from(rowCheckboxes).some(cb => cb.checked);
-
                     if (selectAllCheckbox) {
                         selectAllCheckbox.checked = allChecked;
                         selectAllCheckbox.indeterminate = someChecked && !allChecked;
                     }
-
                     updateSelectAllLabel();
                 });
             });
@@ -721,7 +717,11 @@
                         });
                 }
             }).then((result) => {
-                if (result.isConfirmed) {
+                if (result.isConfirmed && result.value?.success) {
+                    // 🔥 BUKA WHATSAPP JIKA ADA URL
+                    if (result.value.wa_url) {
+                        window.open(result.value.wa_url, '_blank');
+                    }
                     Swal.fire({
                         title: 'Berhasil!',
                         text: result.value.message || 'Pendaftaran berhasil diterima',
@@ -774,15 +774,16 @@
                         .then(response => response.json())
                         .then(data => {
                             if (data.success) {
+                                // 🔥 BUKA WHATSAPP SEGERA SETELAH DAPAT RESPON
+                                if (data.wa_url) {
+                                    window.open(data.wa_url, '_blank');
+                                }
                                 Swal.fire({
                                     title: 'Berhasil!',
                                     text: data.message,
                                     icon: 'success',
                                     confirmButtonColor: '#28a745'
                                 }).then(() => {
-                                    if (data.wa_url) {
-                                        window.open(data.wa_url, '_blank');
-                                    }
                                     window.location.reload();
                                 });
                             } else {
@@ -815,28 +816,20 @@
                 reverseButtons: true
             }).then((result) => {
                 if (result.isConfirmed) {
-                    // Buat form untuk submit ke /admin/ppdb/{id}
                     const form = document.createElement('form');
                     form.method = 'POST';
-                    form.action = `/admin/ppdb/${id}`; // Pastikan ini sesuai dengan route di web.php
-
-                    // CSRF Token
+                    form.action = `/admin/ppdb/${id}`;
                     const csrfToken = document.createElement('input');
                     csrfToken.type = 'hidden';
                     csrfToken.name = '_token';
                     csrfToken.value = document.querySelector('meta[name="csrf-token"]').content;
-
-                    // Method spoofing untuk DELETE
                     const methodField = document.createElement('input');
                     methodField.type = 'hidden';
                     methodField.name = '_method';
                     methodField.value = 'DELETE';
-
                     form.appendChild(csrfToken);
                     form.appendChild(methodField);
                     document.body.appendChild(form);
-
-                    // Tampilkan loading
                     Swal.fire({
                         title: 'Menghapus...',
                         text: 'Mohon tunggu sebentar',
@@ -845,8 +838,6 @@
                             Swal.showLoading();
                         }
                     });
-
-                    // Submit form
                     form.submit();
                 }
             });
@@ -864,7 +855,6 @@
                 });
                 return;
             }
-
             Swal.fire({
                 title: 'Hapus Massal',
                 html: `Apakah Anda yakin ingin menghapus <strong>${selectedIds.length}</strong> data pendaftaran?<br><small class="text-danger">Aksi ini tidak dapat dibatalkan!</small>`,
@@ -877,29 +867,21 @@
                 reverseButtons: true
             }).then((result) => {
                 if (result.isConfirmed) {
-                    // Buat form untuk submit
                     const form = document.createElement('form');
                     form.method = 'POST';
                     form.action = '/admin/ppdb/bulk-delete';
                     form.style.display = 'none';
-
-                    // Tambahkan CSRF token
                     const csrfToken = document.createElement('input');
                     csrfToken.type = 'hidden';
                     csrfToken.name = '_token';
                     csrfToken.value = document.querySelector('meta[name="csrf-token"]').content;
-
-                    // Tambahkan data ids
                     const idsField = document.createElement('input');
                     idsField.type = 'hidden';
                     idsField.name = 'ids';
                     idsField.value = JSON.stringify(selectedIds);
-
                     form.appendChild(csrfToken);
                     form.appendChild(idsField);
                     document.body.appendChild(form);
-
-                    // Tampilkan loading
                     Swal.fire({
                         title: 'Menghapus...',
                         text: 'Mohon tunggu sebentar',
@@ -908,8 +890,6 @@
                             Swal.showLoading();
                         }
                     });
-
-                    // Submit form
                     form.submit();
                 }
             });
@@ -927,7 +907,6 @@
                 });
                 return;
             }
-
             Swal.fire({
                 title: 'Terima Massal',
                 html: `Apakah Anda yakin ingin menerima <strong>${selectedIds.length}</strong> pendaftaran?`,
@@ -939,29 +918,21 @@
                 cancelButtonText: 'Batal'
             }).then((result) => {
                 if (result.isConfirmed) {
-                    // Buat form untuk submit
                     const form = document.createElement('form');
                     form.method = 'POST';
                     form.action = '/admin/ppdb/bulk-approve';
                     form.style.display = 'none';
-
-                    // Tambahkan CSRF token
                     const csrfToken = document.createElement('input');
                     csrfToken.type = 'hidden';
                     csrfToken.name = '_token';
                     csrfToken.value = document.querySelector('meta[name="csrf-token"]').content;
-
-                    // Tambahkan data ids
                     const idsField = document.createElement('input');
                     idsField.type = 'hidden';
                     idsField.name = 'ids';
                     idsField.value = JSON.stringify(selectedIds);
-
                     form.appendChild(csrfToken);
                     form.appendChild(idsField);
                     document.body.appendChild(form);
-
-                    // Tampilkan loading
                     Swal.fire({
                         title: 'Memproses...',
                         text: 'Mohon tunggu sebentar',
@@ -970,8 +941,6 @@
                             Swal.showLoading();
                         }
                     });
-
-                    // Submit form
                     form.submit();
                 }
             });
@@ -989,7 +958,6 @@
                 });
                 return;
             }
-
             Swal.fire({
                 title: 'Tolak Massal',
                 html: `Apakah Anda yakin ingin menolak <strong>${selectedIds.length}</strong> pendaftaran?`,
@@ -1012,36 +980,26 @@
                 }
             }).then((result) => {
                 if (result.isConfirmed) {
-                    // Buat form untuk submit
                     const form = document.createElement('form');
                     form.method = 'POST';
                     form.action = '/admin/ppdb/bulk-reject';
                     form.style.display = 'none';
-
-                    // Tambahkan CSRF token
                     const csrfToken = document.createElement('input');
                     csrfToken.type = 'hidden';
                     csrfToken.name = '_token';
                     csrfToken.value = document.querySelector('meta[name="csrf-token"]').content;
-
-                    // Tambahkan data ids
                     const idsField = document.createElement('input');
                     idsField.type = 'hidden';
                     idsField.name = 'ids';
                     idsField.value = JSON.stringify(selectedIds);
-
-                    // Tambahkan catatan
                     const catatanField = document.createElement('input');
                     catatanField.type = 'hidden';
                     catatanField.name = 'catatan_admin';
                     catatanField.value = result.value;
-
                     form.appendChild(csrfToken);
                     form.appendChild(idsField);
                     form.appendChild(catatanField);
                     document.body.appendChild(form);
-
-                    // Tampilkan loading
                     Swal.fire({
                         title: 'Memproses...',
                         text: 'Mohon tunggu sebentar',
@@ -1050,8 +1008,6 @@
                             Swal.showLoading();
                         }
                     });
-
-                    // Submit form
                     form.submit();
                 }
             });
@@ -1069,18 +1025,12 @@
                 });
                 return;
             }
-
-            // Show export modal
             const exportModal = new bootstrap.Modal(document.getElementById('exportModal'));
             exportModal.show();
-
-            // Create form to submit
             setTimeout(() => {
-                // Kirim request AJAX untuk export
                 const formData = new FormData();
                 formData.append('_token', document.querySelector('meta[name="csrf-token"]').content);
                 formData.append('ids', JSON.stringify(selectedIds));
-
                 fetch('/admin/ppdb/export-selected', {
                         method: 'POST',
                         headers: {
@@ -1126,11 +1076,9 @@
         document.querySelectorAll('.dropdown-item[href*="export"]').forEach(item => {
             item.addEventListener('click', function(e) {
                 if (!this.getAttribute('href').includes('export')) return;
-
                 e.preventDefault();
                 const exportModal = new bootstrap.Modal(document.getElementById('exportModal'));
                 exportModal.show();
-
                 setTimeout(() => {
                     window.location.href = this.getAttribute('href');
                     setTimeout(() => exportModal.hide(), 2000);

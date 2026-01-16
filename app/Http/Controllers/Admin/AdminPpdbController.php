@@ -8,7 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log; // This is already imported
+use Illuminate\Support\Facades\Log;
 use Carbon\Carbon;
 
 class AdminPpdbController extends Controller
@@ -152,138 +152,183 @@ class AdminPpdbController extends Controller
 
     public function approve(Request $request, $id)
     {
-        $ppdb = Ppdb::findOrFail($id);
+        try {
+            $ppdb = Ppdb::findOrFail($id);
 
-        $ppdb->update([
-            'status' => 'diterima',
-            'disetujui_pada' => now(),
-            'disetujui_oleh' => Auth::user()->name,
-            'sudah_dihubungi' => 1,
-            'catatan_admin' => $request->catatan_admin ?? $ppdb->catatan_admin,
-        ]);
-
-        // Format data untuk WhatsApp
-        $tanggalLahir = Carbon::parse($ppdb->tanggal_lahir)->translatedFormat('d F Y');
-
-        $noHp = $this->formatWhatsAppNumber($ppdb->no_hp_ayah);
-
-        $message = "🎉 *SELAMAT! PENDAFTARAN DITERIMA*\n\n" .
-            "Assalamu'alaikum Warahmatullahi Wabarakatuh\n\n" .
-            "Kepada Yth. Bapak/Ibu *{$ppdb->nama_ayah}*,\n" .
-            "(Orang Tua/Wali dari *{$ppdb->nama}*)\n\n" .
-            "Dengan ini kami informasikan bahwa:\n\n" .
-            "📋 *DATA PENDAFTARAN*\n" .
-            "══════════════════════════════\n" .
-            "• Nama Calon Siswa: *{$ppdb->nama}*\n" .
-            "• No. Pendaftaran: *{$ppdb->no_pendaftaran}*\n" .
-            "• Asal Sekolah: *{$ppdb->asal_sekolah}*\n\n" .
-            "✅ *STATUS: DITERIMA*\n\n" .
-            "📅 *TAHAP SELANJUTNYA*\n" .
-            "══════════════════════════════\n" .
-            "1. *Daftar Ulang* di sekolah\n" .
-            "   📍 Alamat: Jl. Raya Kurungan, Nyawa, Pal.12 Gg Sholeha, Pesawaran, Lampung\n" .
-            "   🕒 Jam: 07.30 - 14.00 WIB (Senin-Jumat)\n" .
-            "   📅 Periode: " . now()->addDay()->translatedFormat('d F Y') . " - " . now()->addDays(7)->translatedFormat('d F Y') . "\n\n" .
-            "2. *Dokumen yang dibawa*:\n" .
-            "   • Fotokopi Akte Kelahiran\n" .
-            "   • Fotokopi Kartu Keluarga\n" .
-            "   • Pas Foto 3x4 (2 lembar)\n" .
-            "   • Fotokopi KTP Orang Tua\n\n" .
-            "3. *Biaya Pendidikan*:\n" .
-            "   • Uang Pangkal: Rp 2.500.000\n" .
-            "   • SPP Bulanan: Rp 350.000\n" .
-            "   • Seragam: Rp 850.000 (paket lengkap)\n\n" .
-            "📞 *KONTAK ADMIN*\n" .
-            "══════════════════════════════\n" .
-            "• Telp: 0822-2583-2575\n" .
-            "• Email: sekolahbaitulinsan@gmail.com\n" .
-            "• Alamat: Jl. Raya Kurungan, Nyawa, Pal.12 Gg Sholeha, Pesawaran, Lampung\n\n" .
-            "Terima kasih atas kepercayaan Bapak/Ibu.\n\n" .
-            "Wassalamu'alaikum Warahmatullahi Wabarakatuh\n" .
-            "*Tim PPDB SD IT Baitul Insan*";
-
-        $waUrl = "https://wa.me/{$noHp}?text=" . urlencode($message);
-
-        // Log aktivitas - FIXED: Remove backslash
-        Log::info('User ' . Auth::user()->name . ' menerima pendaftaran ' . $ppdb->nama);
-
-        if ($request->ajax()) {
-            return response()->json([
-                'success' => true,
-                'message' => 'Pendaftaran berhasil diterima',
-                'wa_url' => $waUrl,
+            $ppdb->update([
+                'status' => 'diterima',
+                'disetujui_pada' => now(),
+                'disetujui_oleh' => Auth::user()->name,
+                'sudah_dihubungi' => 1,
+                'catatan_admin' => $request->catatan_admin ?? $ppdb->catatan_admin,
             ]);
-        }
 
-        return redirect()
-            ->back()
-            ->with('success', 'Status berhasil diubah. <a href="' . $waUrl . '" target="_blank" class="underline">Kirim notifikasi WhatsApp</a>');
+            // Format data untuk WhatsApp
+            $noHp = $this->formatWhatsAppNumber($ppdb->no_hp_ayah);
+
+            $message = "*SELAMAT! PENDAFTARAN DITERIMA*\n\n" .
+                "Assalamu'alaikum Warahmatullahi Wabarakatuh\n\n" .
+                "Kepada Yth. Bapak/Ibu *{$ppdb->nama_ayah}*,\n" .
+                "(Orang Tua/Wali dari *{$ppdb->nama}*)\n\n" .
+                "Dengan ini kami informasikan bahwa:\n\n" .
+                "*DATA PENDAFTARAN*\n" .
+                "============================\n" .
+                "• Nama Calon Siswa: *{$ppdb->nama}*\n" .
+                "• No. Pendaftaran: *{$ppdb->no_pendaftaran}*\n" .
+                "• Asal Sekolah: *{$ppdb->asal_sekolah}*\n\n" .
+                "*STATUS: DITERIMA*\n\n" .
+                "*TAHAP SELANJUTNYA*\n" .
+                "============================\n" .
+                "1. *Daftar Ulang* di sekolah\n" .
+                "   Alamat: Jl. Raya Kurungan, Nyawa, Pal.12 Gg Sholeha, Pesawaran, Lampung\n" .
+                "   Jam: 07.30 - 14.00 WIB (Senin-Jumat)\n" .
+                "   Periode: " . now()->addDay()->translatedFormat('d F Y') . " - " . now()->addDays(7)->translatedFormat('d F Y') . "\n\n" .
+                "2. *Dokumen yang dibawa*:\n" .
+                "   • Fotokopi Akte Kelahiran\n" .
+                "   • Fotokopi Kartu Keluarga\n" .
+                "   • Pas Foto 3x4 (2 lembar)\n" .
+                "   • Fotokopi KTP Orang Tua\n\n" .
+                "3. *Biaya Pendidikan*:\n" .
+                "   • Uang Pangkal: Rp 2.500.000\n" .
+                "   • SPP Bulanan: Rp 350.000\n" .
+                "   • Seragam: Rp 850.000 (paket lengkap)\n\n" .
+                "*KONTAK ADMIN*\n" .
+                "============================\n" .
+                "• Telp: 0822-2583-2575\n" .
+                "• Email: sekolahbaitulinsan@gmail.com\n" .
+                "• Alamat: Jl. Raya Kurungan, Nyawa, Pal.12 Gg Sholeha, Pesawaran, Lampung\n\n" .
+                "Terima kasih atas kepercayaan Bapak/Ibu.\n\n" .
+                "Wassalamu'alaikum Warahmatullahi Wabarakatuh\n" .
+                "*Tim PPDB SD IT Baitul Insan*";
+
+            Log::info('User ' . Auth::user()->name . ' menerima pendaftaran ' . $ppdb->nama);
+
+            $waUrl = null;
+            if (!empty($noHp)) {
+                $waUrl = "https://wa.me/{$noHp}?text=" . urlencode($message); // ✅ TANPA SPASI, TANPA EMOJI
+            }
+
+            // Jika request AJAX, kembalikan JSON
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Pendaftaran berhasil diterima',
+                    'wa_url' => $waUrl,
+                ]);
+            }
+
+            // Jika BUKAN AJAX → redirect langsung ke WhatsApp
+            if ($waUrl) {
+                return redirect($waUrl);
+            }
+
+            return redirect()
+                ->back()
+                ->with('warning', 'Pendaftaran diterima, tetapi nomor WhatsApp tidak tersedia.');
+        } catch (\Exception $e) {
+            Log::error('ERROR APPROVE: ' . $e->getMessage());
+            Log::error('Trace: ' . $e->getTraceAsString());
+
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Terjadi kesalahan sistem: ' . $e->getMessage()
+                ], 500);
+            }
+
+            return redirect()
+                ->back()
+                ->with('error', 'Terjadi kesalahan sistem: ' . $e->getMessage());
+        }
     }
 
     /* ================= REJECT PPDB ================= */
 
     public function reject(Request $request, $id)
     {
-        $ppdb = Ppdb::findOrFail($id);
+        try {
+            $ppdb = Ppdb::findOrFail($id);
 
-        $ppdb->update([
-            'status' => 'ditolak',
-            'disetujui_pada' => now(),
-            'disetujui_oleh' => Auth::user()->name,
-            'sudah_dihubungi' => 1,
-            'catatan_admin' => $request->catatan_admin ?? $ppdb->catatan_admin,
-        ]);
-
-        $noHp = $this->formatWhatsAppNumber($ppdb->no_hp_ayah);
-
-        $message = "Assalamu'alaikum Warahmatullahi Wabarakatuh\n\n" .
-            "Kepada Yth. Bapak/Ibu *{$ppdb->nama_ayah}*,\n" .
-            "(Orang Tua/Wali dari *{$ppdb->nama}*)\n\n" .
-            "Terima kasih atas partisipasi dalam *Penerimaan Peserta Didik Baru (PPDB)*\n" .
-            "SD IT Baitul Insan Tahun Ajaran 2025/2026.\n\n" .
-            "Setelah melalui proses seleksi yang ketat, dengan berat hati kami sampaikan bahwa:\n\n" .
-            "📋 *DATA PENDAFTARAN*\n" .
-            "══════════════════════════════\n" .
-            "• Nama Calon Siswa: *{$ppdb->nama}*\n" .
-            "• No. Pendaftaran: *{$ppdb->no_pendaftaran}*\n" .
-            "• Asal Sekolah: *{$ppdb->asal_sekolah}*\n\n" .
-            "❌ *STATUS: BELUM DAPAT DITERIMA*\n\n" .
-            "📝 *CATATAN*\n" .
-            "══════════════════════════════\n" .
-            "Keputusan ini berdasarkan pertimbangan:\n" .
-            "• Kuota kelas yang terbatas\n" .
-            "• Hasil seleksi administrasi\n" .
-            "• Rasio jumlah pendaftar\n\n" .
-            "🌟 *KATA MOTIVASI*\n" .
-            "══════════════════════════════\n" .
-            "\"Sesungguhnya bersama kesulitan ada kemudahan.\"\n" .
-            "(QS. Al-Insyirah: 6)\n\n" .
-            "Kami percaya Allah memiliki rencana yang lebih baik untuk putra/putri Bapak/Ibu.\n\n" .
-            "📞 *KONTAK*\n" .
-            "══════════════════════════════\n" .
-            "Untuk informasi lebih lanjut:\n" .
-            "📱 0822-2583-2575\n" .
-            "📧 sekolahbaitulinsan@gmail.com\n\n" .
-            "Jazakumullah khairan katsiran.\n\n" .
-            "Wassalamu'alaikum Warahmatullahi Wabarakatuh\n" .
-            "*Tim PPDB SD IT Baitul Insan*";
-
-        $waUrl = "https://wa.me/{$noHp}?text=" . urlencode($message);
-
-        // Log aktivitas - FIXED: Remove backslash
-        Log::info('User ' . Auth::user()->name . ' menolak pendaftaran ' . $ppdb->nama);
-
-        if ($request->ajax()) {
-            return response()->json([
-                'success' => true,
-                'message' => 'Pendaftaran berhasil ditolak',
-                'wa_url' => $waUrl,
+            $ppdb->update([
+                'status' => 'ditolak',
+                'disetujui_pada' => now(),
+                'disetujui_oleh' => Auth::user()->name,
+                'sudah_dihubungi' => 1,
+                'catatan_admin' => $request->catatan_admin ?? $ppdb->catatan_admin,
             ]);
-        }
 
-        return redirect()
-            ->back()
-            ->with('info', 'Status berhasil diubah. <a href="' . $waUrl . '" target="_blank" class="underline">Kirim notifikasi WhatsApp</a>');
+            $noHp = $this->formatWhatsAppNumber($ppdb->no_hp_ayah);
+
+            $message = "Assalamu'alaikum Warahmatullahi Wabarakatuh\n\n" .
+                "Kepada Yth. Bapak/Ibu *{$ppdb->nama_ayah}*,\n" .
+                "(Orang Tua/Wali dari *{$ppdb->nama}*)\n\n" .
+                "Terima kasih atas partisipasi dalam *Penerimaan Peserta Didik Baru (PPDB)*\n" .
+                "SD IT Baitul Insan Tahun Ajaran 2025/2026.\n\n" .
+                "Setelah melalui proses seleksi yang ketat, dengan berat hati kami sampaikan bahwa:\n\n" .
+                "*DATA PENDAFTARAN*\n" .
+                "============================\n" .
+                "• Nama Calon Siswa: *{$ppdb->nama}*\n" .
+                "• No. Pendaftaran: *{$ppdb->no_pendaftaran}*\n" .
+                "• Asal Sekolah: *{$ppdb->asal_sekolah}*\n\n" .
+                "*STATUS: BELUM DAPAT DITERIMA*\n\n" .
+                "*CATATAN*\n" .
+                "============================\n" .
+                "Keputusan ini berdasarkan pertimbangan:\n" .
+                "• Kuota kelas yang terbatas\n" .
+                "• Hasil seleksi administrasi\n" .
+                "• Rasio jumlah pendaftar\n\n" .
+                "*KATA MOTIVASI*\n" .
+                "============================\n" .
+                "\"Sesungguhnya bersama kesulitan ada kemudahan.\"\n" .
+                "(QS. Al-Insyirah: 6)\n\n" .
+                "Kami percaya Allah memiliki rencana yang lebih baik untuk putra/putri Bapak/Ibu.\n\n" .
+                "*KONTAK*\n" .
+                "============================\n" .
+                "Untuk informasi lebih lanjut:\n" .
+                "• Telp: 0822-2583-2575\n" .
+                "• Email: sekolahbaitulinsan@gmail.com\n\n" .
+                "Jazakumullah khairan katsiran.\n\n" .
+                "Wassalamu'alaikum Warahmatullahi Wabarakatuh\n" .
+                "*Tim PPDB SD IT Baitul Insan*";
+
+            Log::info('User ' . Auth::user()->name . ' menolak pendaftaran ' . $ppdb->nama);
+
+            $waUrl = null;
+            if (!empty($noHp)) {
+                $waUrl = "https://wa.me/{$noHp}?text=" . urlencode($message); // ✅ TANPA SPASI, TANPA EMOJI
+            }
+
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Pendaftaran berhasil ditolak',
+                    'wa_url' => $waUrl,
+                ]);
+            }
+
+            // Redirect langsung ke WhatsApp jika bukan AJAX
+            if ($waUrl) {
+                return redirect($waUrl);
+            }
+
+            return redirect()
+                ->back()
+                ->with('warning', 'Pendaftaran ditolak, tetapi nomor WhatsApp tidak tersedia.');
+        } catch (\Exception $e) {
+            Log::error('ERROR REJECT: ' . $e->getMessage());
+            Log::error('Trace: ' . $e->getTraceAsString());
+
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Terjadi kesalahan sistem: ' . $e->getMessage()
+                ], 500);
+            }
+
+            return redirect()
+                ->back()
+                ->with('error', 'Terjadi kesalahan sistem: ' . $e->getMessage());
+        }
     }
 
     /* ================= UPDATE CATATAN ================= */
@@ -299,10 +344,9 @@ class AdminPpdbController extends Controller
             'catatan_admin' => $request->catatan_admin,
         ]);
 
-        // Log aktivitas - FIXED: Remove backslash
         Log::info('User ' . Auth::user()->name . ' memperbarui catatan untuk ' . $registration->nama);
 
-        if ($request->ajax()) {
+        if ($request->expectsJson()) {
             return response()->json([
                 'success' => true,
                 'message' => 'Catatan berhasil diperbarui',
@@ -336,10 +380,9 @@ class AdminPpdbController extends Controller
 
         $ppdb->update($updateData);
 
-        // Log aktivitas - FIXED: Remove backslash
         Log::info('User ' . Auth::user()->name . ' mengubah status ' . $ppdb->nama . ' menjadi ' . $request->status);
 
-        if ($request->ajax()) {
+        if ($request->expectsJson()) {
             return response()->json([
                 'success' => true,
                 'message' => 'Status berhasil diperbarui',
@@ -382,7 +425,7 @@ class AdminPpdbController extends Controller
             Log::info('Data berhasil dihapus: ' . $registrationName);
 
             // Response untuk AJAX
-            if (request()->ajax() || request()->expectsJson()) {
+            if (request()->expectsJson()) {
                 return response()->json([
                     'success' => true,
                     'message' => 'Data ' . $registrationName . ' berhasil dihapus!'
@@ -396,7 +439,7 @@ class AdminPpdbController extends Controller
             Log::error('ERROR DELETE: ' . $e->getMessage());
             Log::error('Trace: ' . $e->getTraceAsString());
 
-            if (request()->ajax() || request()->expectsJson()) {
+            if (request()->expectsJson()) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Gagal menghapus: ' . $e->getMessage()
@@ -419,7 +462,6 @@ class AdminPpdbController extends Controller
 
     public function destroyPost($id)
     {
-        // Handle POST request dengan _method DELETE
         return $this->destroy($id);
     }
 
@@ -429,12 +471,10 @@ class AdminPpdbController extends Controller
     {
         $query = Ppdb::query();
 
-        // Filter berdasarkan status
         if ($request->filled('status') && $request->status !== 'all') {
             $query->where('status', $request->status);
         }
 
-        // Filter berdasarkan tanggal
         if ($request->filled('tanggal_mulai') && $request->filled('tanggal_akhir')) {
             $query->whereBetween('created_at', [
                 $request->tanggal_mulai . ' 00:00:00',
@@ -442,7 +482,6 @@ class AdminPpdbController extends Controller
             ]);
         }
 
-        // Filter berdasarkan pencarian
         if ($request->filled('search')) {
             $search = $request->search;
             $query->where(function ($q) use ($search) {
@@ -454,7 +493,6 @@ class AdminPpdbController extends Controller
 
         $registrations = $query->latest()->get();
 
-        // Nama file berdasarkan filter
         $statusText = $request->filled('status') && $request->status !== 'all' ? '-' . $request->status : '';
         $dateText = '';
 
@@ -464,7 +502,6 @@ class AdminPpdbController extends Controller
 
         $filename = 'data-ppdb' . $statusText . $dateText . '-' . date('Y-m-d-His') . '.csv';
 
-        // Header untuk CSV
         $headers = [
             'Content-Type' => 'text/csv; charset=utf-8',
             'Content-Disposition' => 'attachment; filename="' . $filename . '"',
@@ -473,15 +510,10 @@ class AdminPpdbController extends Controller
             'Expires' => '0'
         ];
 
-        // Callback untuk generate CSV
         $callback = function () use ($registrations) {
-            // Buat output stream
             $output = fopen('php://output', 'w');
-
-            // Tambah BOM untuk UTF-8 (agar Excel membaca karakter khusus dengan benar)
             fwrite($output, "\xEF\xBB\xBF");
 
-            // Header kolom
             fputcsv($output, [
                 'No',
                 'No Pendaftaran',
@@ -509,14 +541,13 @@ class AdminPpdbController extends Controller
                 'Catatan Admin'
             ]);
 
-            // Data rows
             foreach ($registrations as $index => $registration) {
                 fputcsv($output, [
                     $index + 1,
                     $registration->no_pendaftaran,
                     Carbon::parse($registration->created_at)->format('d/m/Y H:i'),
                     $registration->nama,
-                    "'" . $registration->nik, // Tambah apostrof agar Excel tidak konversi ke number
+                    "'" . $registration->nik,
                     $registration->tempat_lahir,
                     Carbon::parse($registration->tanggal_lahir)->format('d/m/Y'),
                     $registration->umur,
@@ -527,8 +558,8 @@ class AdminPpdbController extends Controller
                     $registration->alamat,
                     $registration->nama_ayah,
                     $registration->nama_ibu,
-                    "'" . $registration->no_hp_ayah, // Tambah apostrof
-                    "'" . $registration->no_hp_ibu, // Tambah apostrof
+                    "'" . $registration->no_hp_ayah,
+                    "'" . $registration->no_hp_ibu,
                     $registration->pendapatan,
                     $registration->alamat_orang_tua,
                     $this->getStatusText($registration->status),
@@ -542,7 +573,6 @@ class AdminPpdbController extends Controller
             fclose($output);
         };
 
-        // Return response stream download
         return response()->streamDownload($callback, $filename, $headers);
     }
 
@@ -562,44 +592,33 @@ class AdminPpdbController extends Controller
 
     public function statistics()
     {
-        // Hitung total data
         $total = Ppdb::count();
-
-        // Status statistics
         $diterima = Ppdb::where('status', 'diterima')->count();
         $menunggu = Ppdb::where('status', 'menunggu')->count();
         $ditolak = Ppdb::where('status', 'ditolak')->count();
 
-        // Persentase
         $persenDiterima = $total > 0 ? round(($diterima / $total) * 100, 1) : 0;
         $persenMenunggu = $total > 0 ? round(($menunggu / $total) * 100, 1) : 0;
         $persenDitolak = $total > 0 ? round(($ditolak / $total) * 100, 1) : 0;
 
-        // Pendaftaran bulan ini
         $bulanIni = Ppdb::whereMonth('created_at', now()->month)->whereYear('created_at', now()->year)->count();
-
-        // Pendaftaran bulan lalu
         $bulanLalu = Ppdb::whereMonth('created_at', now()->subMonth()->month)
             ->whereYear('created_at', now()->subMonth()->year)
             ->count();
 
-        // Persentase pertumbuhan
         $persentasePertumbuhan = $bulanLalu > 0
             ? round((($bulanIni - $bulanLalu) / $bulanLalu) * 100, 1)
             : ($bulanIni > 0 ? 100 : 0);
 
-        // Rata-rata harian
         $hariDalamBulan = now()->daysInMonth;
         $rataHarian = $hariDalamBulan > 0
             ? round($bulanIni / $hariDalamBulan, 1)
             : 0;
 
-        // Tingkat penerimaan
         $tingkatPenerimaan = $total > 0
             ? round(($diterima / $total) * 100, 1)
             : 0;
 
-        // Data bulanan (12 bulan terakhir)
         $monthlyStats = Ppdb::select(
             DB::raw('YEAR(created_at) as year'),
             DB::raw('MONTH(created_at) as month'),
@@ -611,20 +630,17 @@ class AdminPpdbController extends Controller
             ->orderBy('month', 'desc')
             ->get();
 
-        // Top 5 sekolah
         $topSchools = Ppdb::select('asal_sekolah', DB::raw('COUNT(*) as total'))
             ->groupBy('asal_sekolah')
             ->orderBy('total', 'desc')
             ->limit(5)
             ->get();
 
-        // Distribusi pendapatan
         $incomeStats = Ppdb::select('pendapatan', DB::raw('COUNT(*) as total'))
             ->groupBy('pendapatan')
             ->orderByRaw("FIELD(pendapatan, '< 1 juta', '1 - 3 juta', '3 - 5 juta', '5 - 10 juta', '> 10 juta')")
             ->get();
 
-        // Hitung distribusi jam pendaftaran
         $jamPagi = Ppdb::whereTime('created_at', '>=', '06:00:00')
             ->whereTime('created_at', '<', '12:00:00')
             ->count();
@@ -671,15 +687,12 @@ class AdminPpdbController extends Controller
 
     private function formatWhatsAppNumber($phoneNumber)
     {
-        // Hilangkan semua karakter non-digit
         $cleanNumber = preg_replace('/\D/', '', $phoneNumber);
 
-        // Jika diawali dengan 0, ganti dengan 62
         if (substr($cleanNumber, 0, 1) === '0') {
             $cleanNumber = '62' . substr($cleanNumber, 1);
         }
 
-        // Jika diawali dengan 8 tanpa 62, tambahkan 62
         if (substr($cleanNumber, 0, 1) === '8' && substr($cleanNumber, 0, 2) !== '62') {
             $cleanNumber = '62' . $cleanNumber;
         }
@@ -705,7 +718,6 @@ class AdminPpdbController extends Controller
                 foreach ($ids as $id) {
                     $registration = Ppdb::find($id);
                     if ($registration) {
-                        // Hapus file terkait
                         $filesToDelete = [$registration->foto_anak, $registration->foto_kk, $registration->foto_akte, $registration->foto_ktp_ayah, $registration->foto_ktp_ibu];
 
                         foreach ($filesToDelete as $file) {
@@ -722,7 +734,6 @@ class AdminPpdbController extends Controller
                 break;
 
             case 'export':
-                // Handle bulk export
                 return $this->exportSelected($ids);
 
             case 'update_status':
@@ -805,7 +816,6 @@ class AdminPpdbController extends Controller
             foreach ($request->ids as $id) {
                 $registration = Ppdb::find($id);
                 if ($registration) {
-                    // Hapus file terkait
                     $filesToDelete = [
                         $registration->foto_anak,
                         $registration->foto_kk,
@@ -837,7 +847,6 @@ class AdminPpdbController extends Controller
         }
     }
 
-
     /* ================= MARK CONTACTED ================= */
 
     public function markContacted(Request $request, $id)
@@ -848,7 +857,7 @@ class AdminPpdbController extends Controller
             'sudah_dihubungi' => true,
         ]);
 
-        if ($request->ajax()) {
+        if ($request->expectsJson()) {
             return response()->json([
                 'success' => true,
                 'message' => 'Status sudah dihubungi berhasil diperbarui',
@@ -873,11 +882,8 @@ class AdminPpdbController extends Controller
         return response()->streamDownload(
             function () use ($registrations) {
                 $file = fopen('php://output', 'w');
-
-                // Header dengan UTF-8 BOM untuk Excel
                 fwrite($file, "\xEF\xBB\xBF");
 
-                // Header kolom
                 fputcsv($file, [
                     'No',
                     'No Pendaftaran',
@@ -890,7 +896,6 @@ class AdminPpdbController extends Controller
                     'Status'
                 ]);
 
-                // Data
                 foreach ($registrations as $i => $r) {
                     fputcsv($file, [
                         $i + 1,

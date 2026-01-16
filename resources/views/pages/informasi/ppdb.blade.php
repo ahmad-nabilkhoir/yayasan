@@ -129,6 +129,53 @@
             </div>
         </section>
 
+        {{-- ================= INFORMASI PEMBAYARAN ================= --}}
+        <section class="mb-6">
+            <div class="card rounded-4 overflow-hidden border-0 shadow-sm">
+                <div class="card-header bg-success px-4 py-3 text-white">
+                    <h5 class="fw-bold mb-0">
+                        <i class="bi bi-wallet2 me-2"></i>Informasi Biaya Pendidikan
+                    </h5>
+                </div>
+                <div class="table-responsive">
+                    <table class="mb-0 table align-middle">
+                        <thead class="table-light">
+                            <tr>
+                                <th scope="col" class="px-4">Jenjang</th>
+                                <th scope="col">Uang Gedung</th>
+                                <th scope="col">SPP Bulanan</th>
+                                <th scope="col">Lainnya</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="fw-semibold px-4">TK</td>
+                                <td>Rp 2.500.000</td>
+                                <td>Rp 450.000</td>
+                                <td>
+                                    <span class="badge bg-info-subtle text-info">Seragam: Rp 350.000</span><br>
+                                    <small class="text-muted">Buku & ATK: Rp 200.000</small>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="fw-semibold px-4">SD</td>
+                                <td>Rp 4.000.000</td>
+                                <td>Rp 650.000</td>
+                                <td>
+                                    <span class="badge bg-info-subtle text-info">Seragam: Rp 450.000</span><br>
+                                    <small class="text-muted">Buku & Field Trip: Rp 300.000</small>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="card-footer bg-light small text-muted px-4 py-3">
+                    <i class="bi bi-info-circle me-1"></i>
+                    Pembayaran dapat dicicil. Diskon 10% untuk pendaftaran Gelombang I.
+                </div>
+            </div>
+        </section>
+
         {{-- ================= SYARAT & FAQ ================= --}}
         <section class="mb-6">
             <div class="row g-4">
@@ -158,6 +205,24 @@
                                 <div id="faq1" class="accordion-collapse collapse">
                                     <div class="accordion-body text-muted small px-0">
                                         Ya, biaya mencakup administrasi dan observasi awal.
+                                    </div>
+                                </div>
+                                <button class="accordion-button collapsed fw-semibold px-0" data-bs-toggle="collapse"
+                                    data-bs-target="#faq1">
+                                    Apakah bisa mendaftar online?
+                                </button>
+                                <div id="faq1" class="accordion-collapse collapse">
+                                    <div class="accordion-body text-muted small px-0">
+                                        Ya, sangat bisa mendaftar online dan dapat diakses dari mana saja.
+                                    </div>
+                                </div>
+                                <button class="accordion-button collapsed fw-semibold px-0" data-bs-toggle="collapse"
+                                    data-bs-target="#faq1">
+                                    Apakah bisa Pembayaran online
+                                </button>
+                                <div id="faq1" class="accordion-collapse collapse">
+                                    <div class="accordion-body text-muted small px-0">
+                                        Ya, bisa dilakukan melalui bank transfer atau e-wallet.
                                     </div>
                                 </div>
                             </div>

@@ -226,7 +226,7 @@ class PpdbController extends Controller
             // Untuk regular form submission
             return redirect()->route('daftar-sekarang')
                 ->with([
-                    'success' => '🎉 Pendaftaran berhasil! Nomor pendaftaran Anda: <strong>' . $ppdb->no_pendaftaran . '</strong><br>Silakan simpan nomor ini untuk pengecekan status pendaftaran.',
+                    'success' => 'Pendaftaran berhasil! Nomor pendaftaran Anda: <strong>' . $ppdb->no_pendaftaran . '</strong><br>Silakan simpan nomor ini untuk pengecekan status pendaftaran.',
                     'registration_data' => $successData
                 ]);
         } catch (\Exception $e) {
@@ -255,7 +255,7 @@ class PpdbController extends Controller
     }
 
     /**
-     * Generate WhatsApp message and URL
+     * Generate WhatsApp message and URL (TANPA EMOJI)
      */
     private function generateWhatsAppMessage(Ppdb $ppdb)
     {
@@ -268,53 +268,53 @@ class PpdbController extends Controller
         // Format tanggal lahir
         $tanggalLahir = date('d F Y', strtotime($ppdb->tanggal_lahir));
 
-        // Buat pesan WhatsApp yang lebih lengkap
+        // Buat pesan WhatsApp TANPA EMOJI — hanya teks & simbol ASCII
         $message = "Assalamu'alaikum Warahmatullahi Wabarakatuh\n\n" .
-            "Halo Admin PPDB SD IT Baitul Ihsan,\n\n" .
+            "Halo Admin PPDB SD IT Baitul Insan,\n\n" .
             "Saya *" . $ppdb->nama_ayah . "* (ayah dari calon siswa *" . $ppdb->nama . "*) " .
             "ingin mengonfirmasi pendaftaran PPDB Tahun Ajaran 2025/2026.\n\n" .
-            "---\n\n" .
-            "📋 *DATA CALON SISWA*\n" .
-            "══════════════════════════════\n" .
-            "• *No. Pendaftaran*: " . $ppdb->no_pendaftaran . "\n" .
-            "• *Nama Lengkap*: " . $ppdb->nama . "\n" .
-            "• *NIK*: " . $ppdb->nik . "\n" .
-            "• *TTL*: " . $ppdb->tempat_lahir . ", " . $tanggalLahir . "\n" .
-            "• *Umur*: " . $ppdb->umur . " tahun\n" .
-            "• *Jenis Kelamin*: " . $ppdb->jenis_kelamin . "\n" .
-            "• *Asal Sekolah*: " . $ppdb->asal_sekolah . "\n" .
-            "• *Anak ke*: " . $ppdb->anak_ke . " dari " . $ppdb->dari_bersaudara . " bersaudara\n\n" .
-            "---\n\n" .
-            "👨‍👩‍👧 *DATA ORANG TUA*\n" .
-            "══════════════════════════════\n" .
-            "• *Nama Ayah*: " . $ppdb->nama_ayah . "\n" .
-            "• *Nama Ibu*: " . $ppdb->nama_ibu . "\n" .
-            "• *No. HP Ayah*: " . $ppdb->no_hp_ayah . "\n" .
-            "• *No. HP Ibu*: " . $ppdb->no_hp_ibu . "\n" .
-            "• *Penghasilan*: " . $ppdb->pendapatan . "\n\n" .
-            "---\n\n" .
-            "📍 *ALAMAT CALON SISWA*\n" .
-            "══════════════════════════════\n" .
+            "----------------------------------------\n\n" .
+            "[DATA CALON SISWA]\n" .
+            "========================================\n" .
+            "- No. Pendaftaran: " . $ppdb->no_pendaftaran . "\n" .
+            "- Nama Lengkap: " . $ppdb->nama . "\n" .
+            "- NIK: " . $ppdb->nik . "\n" .
+            "- TTL: " . $ppdb->tempat_lahir . ", " . $tanggalLahir . "\n" .
+            "- Umur: " . $ppdb->umur . " tahun\n" .
+            "- Jenis Kelamin: " . $ppdb->jenis_kelamin . "\n" .
+            "- Asal Sekolah: " . $ppdb->asal_sekolah . "\n" .
+            "- Anak ke: " . $ppdb->anak_ke . " dari " . $ppdb->dari_bersaudara . " bersaudara\n\n" .
+            "----------------------------------------\n\n" .
+            "[DATA ORANG TUA]\n" .
+            "========================================\n" .
+            "- Nama Ayah: " . $ppdb->nama_ayah . "\n" .
+            "- Nama Ibu: " . $ppdb->nama_ibu . "\n" .
+            "- No. HP Ayah: " . $ppdb->no_hp_ayah . "\n" .
+            "- No. HP Ibu: " . $ppdb->no_hp_ibu . "\n" .
+            "- Penghasilan: " . $ppdb->pendapatan . "\n\n" .
+            "----------------------------------------\n\n" .
+            "[ALAMAT CALON SISWA]\n" .
+            "========================================\n" .
             $ppdb->alamat . "\n\n" .
-            "---\n\n" .
-            "✅ *STATUS PENDAFTARAN*: Menunggu verifikasi\n\n" .
-            "---\n\n" .
-            "📌 *PERMOHONAN KONFIRMASI*:\n" .
+            "----------------------------------------\n\n" .
+            "STATUS PENDAFTARAN: Menunggu verifikasi\n\n" .
+            "----------------------------------------\n\n" .
+            "[PERMOHONAN KONFIRMASI]:\n" .
             "Mohon admin dapat mengkonfirmasi bahwa data pendaftaran ini telah:\n" .
-            "1. ✅ Berhasil diterima sistem\n" .
-            "2. ⏳ Sedang dalam proses verifikasi\n" .
-            "3. 📅 Informasi tahap selanjutnya (tes/wawancara)\n\n" .
-            "---\n\n" .
+            "1. Berhasil diterima sistem\n" .
+            "2. Sedang dalam proses verifikasi\n" .
+            "3. Informasi tahap selanjutnya (tes/wawancara)\n\n" .
+            "----------------------------------------\n\n" .
             "Jazakumullah khairan katsiran atas perhatian dan kerjasamanya.\n\n" .
             "Wassalamu'alaikum Warahmatullahi Wabarakatuh,\n\n" .
             "*" . $ppdb->nama_ayah . "*\n" .
             "Orang Tua/Wali dari *" . $ppdb->nama . "*\n\n" .
-            "📞 *Kontak*: " . $ppdb->no_hp_ayah;
+            "Kontak: " . $ppdb->no_hp_ayah;
 
         // Encode pesan untuk URL
         $encodedMessage = urlencode($message);
 
-        // Return URL WhatsApp lengkap
+        // Return URL WhatsApp — TANPA SPASI
         return "https://wa.me/{$waNumber}?text={$encodedMessage}";
     }
 

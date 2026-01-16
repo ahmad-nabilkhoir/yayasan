@@ -128,10 +128,7 @@
         <div class="prestasi-wrapper">
             @foreach ($prestasi as $index => $item)
                 <div class="prestasi-item">
-                    {{-- Nomor Urut --}}
-                    <div class="nomer-urut">
-                        {{ $index + 1 + ($prestasi->currentPage() - 1) * $prestasi->perPage() }}.
-                    </div>
+
 
                     {{-- Judul --}}
                     <h2 class="judul-utama">{{ $item->judul }}</h2>

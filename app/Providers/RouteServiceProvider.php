@@ -17,16 +17,7 @@ class RouteServiceProvider extends ServiceProvider
      *
      * @var string
      */
-    public const HOME = '/admin/dashboard'; // PERUBAHAN INI SANGAT PENTING
-
-    /**
-     * The controller namespace for the application.
-     *
-     * When present, controller route declarations will automatically be prefixed with this namespace.
-     *
-     * @var string|null
-     */
-    // protected $namespace = 'App\\Http\\Controllers';
+    public const HOME = '/admin/dashboard'; // Sesuaikan dengan halaman dashboard-mu
 
     /**
      * Define your route model bindings, pattern filters, etc.
@@ -38,14 +29,18 @@ class RouteServiceProvider extends ServiceProvider
         $this->configureRateLimiting();
 
         $this->routes(function () {
+            // API routes
             Route::prefix('api')
                 ->middleware('api')
-                ->namespace($this->namespace)
                 ->group(base_path('routes/api.php'));
 
+            // Web routes (utama)
             Route::middleware('web')
-                ->namespace($this->namespace)
                 ->group(base_path('routes/web.php'));
+
+            // 🔹 Auth routes (login, register, password reset, dll)
+            Route::middleware('web')
+                ->group(base_path('routes/auth.php'));
         });
     }
 
