@@ -72,7 +72,7 @@
                     style="{{ $kategoriFilter != 'all' && $kategoriFilter != $item->kategori ? 'display: none;' : '' }}">
                     <div class="card h-100 rounded-3 overflow-hidden border-0 shadow-sm">
                         <div class="position-relative">
-                            <img src="{{ asset('storage/' . $item->foto) }}" class="card-img-top"
+                            <img src="{{ asset('storage/' . $item->foto) }}" class="card-img-top" loading="lazy"
                                 style="height: 180px; object-fit: cover;"
                                 onerror="this.src='https://via.placeholder.com/300x180/6c757d/ffffff?text=Galeri'">
                             <span class="position-absolute badge rounded-pill start-0 top-0 m-2 px-3 py-1"
@@ -225,5 +225,43 @@
                 });
             });
         });
+
+        function previewImage(input) {
+            const file = input.files[0];
+            if (!file) return;
+
+            const maxSize = 5 * 1024 * 1024; // 5MB
+            const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/webp'];
+
+            if (!allowedTypes.includes(file.type)) {
+                alert('Format tidak didukung!');
+                input.value = '';
+                return;
+            }
+
+            if (file.size > maxSize) {
+                alert('Ukuran maksimal 5MB');
+                input.value = '';
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = e => {
+                const preview = document.getElementById('preview') ||
+                    document.getElementById('image-preview');
+
+                if (preview) preview.src = e.target.result;
+
+                document.getElementById('preview-container')?.classList.remove('hidden');
+                document.getElementById('preview-container')?.classList.remove('d-none');
+
+                const old = document.getElementById('preview-old') ||
+                    document.getElementById('preview-current');
+
+                if (old) old.style.display = 'none';
+            };
+
+            reader.readAsDataURL(file);
+        }
     </script>
 @endpush

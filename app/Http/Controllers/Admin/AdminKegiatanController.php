@@ -9,13 +9,20 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Http\JsonResponse;
+use Intervention\Image\ImageManager;
+use Intervention\Image\Drivers\Gd\Driver;
 
 class AdminKegiatanController extends Controller
 {
-    /* ================= LIST KEGIATAN ================= */
+
+    protected ImageManager $image;
+
+    public function __construct()
+    {
+        $this->image = new ImageManager(new Driver());
+    }
 
     /* ================= LIST KEGIATAN ================= */
-
     public function index(Request $request)
     {
         $query = Kegiatan::query();
@@ -121,7 +128,7 @@ class AdminKegiatanController extends Controller
             'judul' => 'required|string|max:255',
             'deskripsi' => 'required|string',
             'kategori' => 'required|string',
-            'gambar' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
+            'gambar' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:5120',
             'video' => 'nullable|string',
             'video_file' => 'nullable|file|mimes:mp4,webm,ogg|max:51200', // 50MB
             'ikon' => 'nullable|string|max:50',
@@ -134,8 +141,9 @@ class AdminKegiatanController extends Controller
         // Proses upload gambar
         $gambarPath = null;
         if ($request->hasFile('gambar')) {
-            $gambarPath = $request->file('gambar')->store('kegiatan/gambar', 'public');
+            $gambarPath = $this->processImage($request->file('gambar'));
         }
+
 
         // Proses video
         $videoPath = null;
@@ -239,14 +247,14 @@ class AdminKegiatanController extends Controller
 
         // Proses update gambar
         $gambarPath = $kegiatan->gambar;
+
         if ($request->hasFile('gambar')) {
-            // Hapus gambar lama jika ada
             if ($gambarPath && Storage::disk('public')->exists($gambarPath)) {
                 Storage::disk('public')->delete($gambarPath);
             }
-            $gambarPath = $request->file('gambar')->store('kegiatan/gambar', 'public');
+
+            $gambarPath = $this->processImage($request->file('gambar'));
         } elseif ($request->has('remove_gambar')) {
-            // Hapus gambar jika user memilih untuk menghapus
             if ($gambarPath && Storage::disk('public')->exists($gambarPath)) {
                 Storage::disk('public')->delete($gambarPath);
             }
@@ -473,5 +481,23 @@ class AdminKegiatanController extends Controller
         }
 
         return back()->with('success', $message);
+    }
+
+    /**
+     * 🔥 AUTO RESIZE + COMPRESS GAMBAR KEGIATAN
+     */
+    private function processImage($file): string
+    {
+        $filename = Str::uuid() . '.webp';
+        $path = 'kegiatan/gambar/' . $filename;
+
+        $image = $this->image
+            ->read($file)
+            ->scaleDown(1200)   // ⬅️ resize max 1200px (tidak upscale)
+            ->toWebp(75);       // ⬅️ compress + webp
+
+        Storage::disk('public')->put($path, (string) $image);
+
+        return $path;
     }
 }

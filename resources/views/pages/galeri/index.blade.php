@@ -62,8 +62,9 @@
                                 </div>
 
                                 <img src="{{ asset('storage/' . $item->foto) }}" class="img-fluid public-gallery-thumb"
-                                    alt="{{ $item->judul }}" loading="lazy"
+                                    alt="{{ $item->judul }}" loading="lazy" decoding="async" width="400" height="300"
                                     onerror="this.src='https://via.placeholder.com/400x280/1a44cc/ffffff?text=YPAI'">
+
 
                                 <div class="public-gallery-overlay">
                                     <div class="public-overlay-icon"><i class="bi bi-zoom-in"></i></div>
@@ -302,6 +303,7 @@
             height: 300px;
             background: radial-gradient(circle, rgba(59, 130, 246, 0.1) 0%, rgba(59, 130, 246, 0) 70%);
         }
+
 
         /* Modal Styling */
         #publicLightboxModal .modal-content {

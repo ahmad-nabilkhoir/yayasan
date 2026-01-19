@@ -27,49 +27,28 @@
                 @if ($kategoriOptions && count($kategoriOptions) > 0)
                     <div class="fade-in-up mt-4" style="animation-delay: 0.4s;">
                         {{-- Mobile --}}
-                        <div class="d-flex d-lg-none justify-content-center mb-3">
-                            <div class="dropdown w-100" style="max-width: 300px;" id="mobileKategoriDropdown">
-                                <button class="btn btn-primary dropdown-toggle rounded-pill w-100 px-4 py-2 shadow-sm"
-                                    type="button" id="kategoriDropdownMobile" data-bs-toggle="dropdown"
-                                    aria-expanded="false">
-                                    <i class="bi bi-filter-circle me-2"></i>
-                                    @if (request('kategori'))
-                                        {{ $kategoriOptions[request('kategori')] ?? 'Kategori Tidak Dikenal' }}
-                                    @else
-                                        Semua Kategori
-                                    @endif
-                                </button>
-                                <ul class="dropdown-menu mobile-dropdown-menu w-100"
-                                    aria-labelledby="kategoriDropdownMobile" id="kategoriDropdownMenuMobile">
-                                    <li class="dropdown-header fw-bold text-primary mb-2 px-3 py-2"
-                                        style="font-size: 0.9rem;">
-                                        <i class="bi bi-tags me-1"></i>Pilih Kategori
-                                    </li>
-                                    <li>
-                                        <hr class="dropdown-divider mx-3 my-1">
-                                    </li>
-                                    <li>
-                                        <a class="dropdown-item {{ !request('kategori') ? 'active' : '' }} d-flex align-items-center mx-2 rounded px-3 py-2"
-                                            href="{{ route('kegiatan.index') }}">
-                                            <i class="bi bi-grid-3x3-gap me-2"></i>Semua Kegiatan
-                                            @if (!request('kategori'))
-                                                <i class="bi bi-check-lg text-primary ms-auto"></i>
-                                            @endif
-                                        </a>
-                                    </li>
+                        {{-- Mobile Swipe Filter --}}
+                        <div class="d-lg-none fade-in-up mt-4" style="animation-delay: 0.4s;">
+                            <div class="kategori-scroll-wrapper px-2">
+                                <div class="kategori-scroll d-flex gap-2">
+
+                                    {{-- Semua --}}
+                                    <a href="{{ route('kegiatan.index') }}"
+                                        class="kategori-chip {{ !request('kategori') ? 'active' : '' }}">
+                                        <i class="bi bi-grid-3x3-gap me-1"></i>
+                                        Semua
+                                    </a>
+
+                                    {{-- Kategori --}}
                                     @foreach ($kategoriOptions as $key => $label)
-                                        <li>
-                                            <a class="dropdown-item {{ request('kategori') == $key ? 'active' : '' }} d-flex align-items-center mx-2 rounded px-3 py-2"
-                                                href="?kategori={{ $key }}">
-                                                <i
-                                                    class="bi {{ $kategoriIcons[$key] ?? 'bi-star' }} me-2"></i>{{ $label }}
-                                                @if (request('kategori') == $key)
-                                                    <i class="bi bi-check-lg text-primary ms-auto"></i>
-                                                @endif
-                                            </a>
-                                        </li>
+                                        <a href="?kategori={{ $key }}"
+                                            class="kategori-chip {{ request('kategori') == $key ? 'active' : '' }}">
+                                            <i class="bi {{ $kategoriIcons[$key] ?? 'bi-star' }} me-1"></i>
+                                            {{ $label }}
+                                        </a>
                                     @endforeach
-                                </ul>
+
+                                </div>
                             </div>
                         </div>
 
@@ -399,42 +378,49 @@
             z-index: auto !important;
         }
 
-        /* Dropdown mobile — muncul di atas semua */
-        @media (max-width: 991.98px) {
-            #mobileKategoriDropdown {
-                position: relative;
-                z-index: 1051;
-            }
-
-            #mobileKategoriDropdown .dropdown-menu {
-                background: white !important;
-                border: 1px solid #e0e0e0 !important;
-                border-radius: 12px !important;
-                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15) !important;
-                padding: 0.75rem 0 !important;
-                margin-top: 8px !important;
-                width: 100% !important;
-                z-index: 1052 !important;
-                position: absolute !important;
-                top: 100% !important;
-                left: 0 !important;
-                right: 0 !important;
-                backdrop-filter: blur(10px) !important;
-                -webkit-backdrop-filter: blur(10px) !important;
-                animation: slideDown 0.3s ease-out !important;
-            }
+        /* =========================
+       MOBILE SWIPE FILTER
+    ========================= */
+        .kategori-scroll-wrapper {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+            position: relative;
         }
 
-        @keyframes slideDown {
-            from {
-                opacity: 0;
-                transform: translateY(-10px);
-            }
+        .kategori-scroll-wrapper::-webkit-scrollbar {
+            display: none;
+        }
 
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+        .kategori-scroll {
+            white-space: nowrap;
+            padding-bottom: 6px;
+        }
+
+        .kategori-chip {
+            flex-shrink: 0;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 8px 18px;
+            border-radius: 999px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            background: #f1f5f9;
+            color: #475569;
+            text-decoration: none;
+            border: 1px solid transparent;
+            transition: all 0.2s ease;
+        }
+
+        .kategori-chip:hover {
+            background: #e2e8f0;
+        }
+
+        .kategori-chip.active {
+            background: rgba(13, 110, 253, 0.12);
+            color: #0d6efd;
+            border-color: rgba(13, 110, 253, 0.3);
         }
 
         /* Gaya lainnya (tidak berubah) */

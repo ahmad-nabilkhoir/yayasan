@@ -35,9 +35,4 @@ return [
         ],
     ],
 
-    'ppdb' => [
-        'api_url' => env('PPDB_API_URL', 'http://localhost:8001/api/v1'),
-        'api_key' => env('PPDB_API_KEY', 'ppdb_secret_key_2024'),
-    ],
-
 ];

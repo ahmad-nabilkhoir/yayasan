@@ -564,6 +564,235 @@
                     justify-content: center;
                 }
             }
+
+            /* Navbar Responsive Brand */
+            .brand-text {
+                font-size: 0.9rem;
+                white-space: nowrap;
+            }
+
+            @media (max-width: 576px) {
+                .brand-text {
+                    font-size: 0.75rem;
+                    max-width: 160px;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                }
+            }
+
+            @media (max-width: 991.98px) {
+                .navbar-nav {
+                    padding-top: 10px;
+                }
+
+                .navbar-nav .nav-link {
+                    padding: 10px 12px;
+                    border-radius: 8px;
+                }
+
+                .navbar-nav .nav-link:hover {
+                    background-color: #f1f5f9;
+                }
+            }
+
+            @media (max-width: 576px) {
+                #chatbox {
+                    width: 100% !important;
+                    max-width: 95vw;
+                    right: 0;
+                }
+
+                #chatbox-container {
+                    right: 0;
+                    left: 0;
+                    display: flex;
+                    justify-content: flex-end;
+                    padding-right: 10px;
+                }
+            }
+
+            @media (max-width: 768px) {
+                .kegiatan-card {
+                    border-radius: 1.2rem;
+                }
+
+                .kegiatan-card .p-4 {
+                    padding: 1.25rem !important;
+                }
+
+                .description-text {
+                    padding-left: 14px;
+                    font-size: 0.95rem;
+                }
+            }
+
+            @media (max-width: 768px) {
+
+                footer h4,
+                footer h5 {
+                    font-size: 0.95rem;
+                    text-align: center;
+                }
+
+                footer p {
+                    font-size: 0.85rem;
+                    text-align: center;
+                }
+            }
+
+            .container {
+                padding-left: 16px;
+                padding-right: 16px;
+            }
+
+            /* =======================
+   DARK MODE STYLES
+======================= */
+
+            body.dark-mode {
+                background-color: #0f172a;
+                color: #e5e7eb;
+            }
+
+            /* Navbar */
+            body.dark-mode .navbar {
+                background-color: #020617 !important;
+            }
+
+            body.dark-mode .navbar .nav-link,
+            body.dark-mode .navbar-brand {
+                color: #f8fafc !important;
+            }
+
+            body.dark-mode .nav-link.active::after {
+                background-color: #38bdf8;
+            }
+
+            /* Dropdown */
+            body.dark-mode .dropdown-menu {
+                background-color: #020617;
+            }
+
+            body.dark-mode .dropdown-item {
+                color: #e5e7eb;
+            }
+
+            body.dark-mode .dropdown-item:hover {
+                background-color: #0f172a;
+            }
+
+            /* Card */
+            body.dark-mode .card,
+            body.dark-mode .kegiatan-card {
+                background-color: #020617 !important;
+                color: #e5e7eb;
+                border-color: rgba(255, 255, 255, 0.1);
+            }
+
+            /* Section Background */
+            body.dark-mode .kegiatan-section {
+                background: linear-gradient(135deg, #020617, #020617);
+            }
+
+            /* Footer */
+            body.dark-mode footer,
+            body.dark-mode footer p {
+                color: #e5e7eb !important;
+            }
+
+            /* Pagination */
+            body.dark-mode .pagination .page-link {
+                background-color: #020617;
+                color: #38bdf8;
+            }
+
+            /* Chatbox */
+            body.dark-mode #chatbox {
+                background-color: #020617 !important;
+            }
+
+            body.dark-mode .message-bot {
+                background-color: #0f172a !important;
+                color: #e5e7eb;
+                border-color: rgba(255, 255, 255, 0.1);
+            }
+
+            /* Toggle Button */
+            body.dark-mode #darkModeToggle {
+                background-color: #0f172a;
+                color: #38bdf8;
+            }
+
+            /* ============================
+   DARK MODE TEXT FIX
+============================ */
+
+            /* Default text */
+            body.dark-mode,
+            body.dark-mode p,
+            body.dark-mode span,
+            body.dark-mode small,
+            body.dark-mode li,
+            body.dark-mode label {
+                color: #e5e7eb !important;
+            }
+
+            /* Headings */
+            body.dark-mode h1,
+            body.dark-mode h2,
+            body.dark-mode h3,
+            body.dark-mode h4,
+            body.dark-mode h5,
+            body.dark-mode h6 {
+                color: #f8fafc !important;
+            }
+
+            /* Bootstrap text helpers */
+            body.dark-mode .text-dark {
+                color: #f8fafc !important;
+            }
+
+            body.dark-mode .text-muted,
+            body.dark-mode .text-secondary {
+                color: #9ca3af !important;
+            }
+
+            body.dark-mode .text-primary {
+                color: #38bdf8 !important;
+            }
+
+            /* Links */
+            body.dark-mode a {
+                color: #7dd3fc;
+            }
+
+            body.dark-mode a:hover {
+                color: #bae6fd;
+            }
+
+            /* White background override */
+            body.dark-mode .bg-white {
+                background-color: #020617 !important;
+            }
+
+            /* Border */
+            body.dark-mode .border,
+            body.dark-mode .border-top,
+            body.dark-mode .border-bottom {
+                border-color: rgba(255, 255, 255, 0.1) !important;
+            }
+
+            /* Icons */
+            body.dark-mode i,
+            body.dark-mode svg {
+                color: inherit !important;
+            }
+
+            /* Badge */
+            body.dark-mode .badge {
+                background-color: rgba(255, 255, 255, 0.1);
+                color: #e5e7eb;
+            }
         </style>
 
         @stack('styles')
@@ -574,11 +803,11 @@
         <nav class="navbar navbar-expand-lg navbar-light fixed-top bg-white shadow-sm">
             <div class="container">
                 <!-- Logo -->
-                <a class="navbar-brand d-flex align-items-center fw-bold text-dark" href="{{ route('home') }}"
-                    style="gap: 0.5rem">
-                    <img src="{{ asset('img/logo.png') }}" alt="Logo" width="32" height="32">
-                    YAYASAN BAITUL INSAN
+                <a class="navbar-brand d-flex align-items-center fw-bold text-dark" href="{{ route('home') }}">
+                    <img src="{{ asset('img/logo.png') }}" alt="Logo" width="32" height="32" class="me-2">
+                    <span class="brand-text">YAYASAN PENDIDIKAN BAITUL INSAN</span>
                 </a>
+
 
                 <!-- Toggle Button -->
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain"
@@ -666,6 +895,14 @@
                                 </span>
                             </a>
                         </li>
+
+                        {{-- Dark Mode Toggle (Disabled for now) --}}
+                        {{-- <li class="nav-item d-flex align-items-center">
+                            <button id="darkModeToggle" class="btn btn-sm rounded-circle border-0 shadow-sm"
+                                style="width: 36px; height: 36px;">
+                                <i class="bi bi-moon-stars-fill"></i>
+                            </button>
+                        </li> --}}
                     </ul>
                 </div>
             </div>
@@ -679,7 +916,7 @@
             @yield('content')
         </main>
 
-        {{-- Chatbox Interaktif Gemini - Yayasan Baitul Insan --}}
+        {{-- Chatbox Interaktif Gemini - Yayasan Pendidikan Baitul Insan --}}
         <div id="chatbox-container" class="position-fixed bottom-0 end-0 p-3" style="z-index: 1050;">
             {{-- Tombol Buka Chat --}}
             <button id="chat-toggle" class="btn btn-primary rounded-circle shadow-lg"
@@ -704,7 +941,8 @@
                     style="height: 300px; overflow-y: auto; background-color: #f9fafb; display: flex; flex-direction: column;">
                     <div class="d-flex justify-content-start mb-3">
                         <div class="bg-primary rounded-3 small p-2 text-white" style="max-width: 90%;">
-                            Halo! Saya asisten AI Yayasan Baitul Insan. Ada yang bisa saya bantu terkait informasi
+                            Halo! Saya asisten AI Yayasan Pendidikan Baitul Insan. Ada yang bisa saya bantu terkait
+                            informasi
                             yayasan?
                         </div>
                     </div>
@@ -743,6 +981,15 @@
                 border-bottom-left-radius: 2px !important;
             }
 
+            body.dark-mode #chat-messages {
+                color: #e5e7eb;
+            }
+
+            body.dark-mode .message-user {
+                background-color: #2563eb !important;
+                color: #ffffff !important;
+            }
+
             #chat-messages {
                 scrollbar-width: thin;
                 display: flex;
@@ -765,6 +1012,14 @@
                 margin-bottom: 10px;
                 align-self: flex-start;
             }
+
+            body,
+            .navbar,
+            .card,
+            .kegiatan-card,
+            footer {
+                transition: background-color 0.3s ease, color 0.3s ease;
+            }
         </style>
 
         <script>
@@ -776,13 +1031,13 @@
                 const chatInput = document.getElementById('chat-input');
                 const sendBtn = document.getElementById('send-btn');
 
-                // === KONFIGURASI API (WAJIB GANTI KEY JIKA MASIH ERROR 404/403) ===
+                // === KONFIGURASI API ===
+                // Pastikan API_KEY ini baru dan sudah di-copy dari Google AI Studio
                 const API_KEY = "AIzaSyAuTYKGwxJVFuRo1JqgR0LwzRw2tG4HSbM";
                 const ADMIN_PHONE = '6282225832575';
 
                 // === FUNGSI UTAMA GEMINI ===
                 async function getGeminiResponse(userText) {
-                    // Tampilkan indikator loading
                     const loadingId = "loading-" + Date.now();
                     const loadingDiv = document.createElement('div');
                     loadingDiv.id = loadingId;
@@ -792,9 +1047,9 @@
                     chatMessages.scrollTop = chatMessages.scrollHeight;
 
                     try {
-                        // Perbaikan URL: Pastikan menggunakan v1beta dan format generateContent
+                        // PERBAIKAN: Menggunakan v1 (lebih stabil) dan model gemini-1.5-flash
                         const url =
-                            `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
+                            `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
 
                         const response = await fetch(url, {
                             method: 'POST',
@@ -804,7 +1059,7 @@
                             body: JSON.stringify({
                                 contents: [{
                                     parts: [{
-                                        text: `Instruksi: Kamu adalah asisten pintar Yayasan Baitul Insan. 
+                                        text: `Instruksi: Kamu adalah asisten pintar Yayasan Pendidikan Baitul Insan. 
                                 Informasi Yayasan:
                                 - Visi: Mencetak generasi Qur’ani yang cerdas dan mandiri.
                                 - Program: Tahfidz Al-Qur'an, STEM Education, Beasiswa Yatim.
@@ -819,19 +1074,29 @@
 
                         const data = await response.json();
 
-                        // Hapus loading
                         const loader = document.getElementById(loadingId);
                         if (loader) loader.remove();
 
-                        // Validasi data respon
+                        // PERBAIKAN: Penanganan error yang lebih spesifik berdasarkan respon Google
+                        if (data.error) {
+                            console.error("Detail Error dari Google:", data.error);
+                            if (data.error.code === 404) {
+                                addMessage(
+                                    "Fitur ini dalam pengembangan jika ada yang ingin ditanyakan silahkan hubungi admin.",
+                                    false);
+                            } else if (data.error.status === "PERMISSION_DENIED") {
+                                addMessage("Error: Kunci API tidak memiliki izin atau sudah kadaluwarsa.", false);
+                            } else {
+                                addMessage("Maaf, ada kendala teknis pada server AI: " + data.error.message, false);
+                            }
+                            return;
+                        }
+
                         if (data.candidates && data.candidates[0].content && data.candidates[0].content.parts) {
                             const resultText = data.candidates[0].content.parts[0].text;
                             addMessage(resultText, false);
-                        } else if (data.error) {
-                            console.error("API Error Detail:", data.error);
-                            addMessage("Maaf, ada kendala pada kunci akses API. Mohon hubungi admin.", false);
                         } else {
-                            addMessage("Maaf, asisten gagal memproses jawaban. Coba lagi ya.", false);
+                            addMessage("Maaf, asisten gagal memberikan jawaban. Silakan coba lagi.", false);
                         }
 
                     } catch (error) {
@@ -846,14 +1111,11 @@
                 function addMessage(text, isUser = false) {
                     const wrapper = document.createElement('div');
                     wrapper.className = `d-flex ${isUser ? 'justify-content-end' : 'justify-content-start'}`;
-
                     const msgClass = isUser ? 'message-user' : 'message-bot';
 
-                    wrapper.innerHTML = `
-                <div class="${msgClass} rounded-3 p-2 small shadow-sm" style="max-width: 85%; white-space: pre-wrap; margin-bottom: 5px;">
-                    ${text}
-                </div>
-            `;
+                    // PERBAIKAN: Menghilangkan enter dan spasi di dalam template literal
+                    wrapper.innerHTML =
+                        `<div class="${msgClass} rounded-3 p-2 small shadow-sm" style="max-width: 85%; white-space: pre-wrap; margin-bottom: 5px;">${text}</div>`;
 
                     chatMessages.appendChild(wrapper);
                     chatMessages.scrollTop = chatMessages.scrollHeight;
@@ -901,7 +1163,7 @@
                         <div class="d-flex flex-column align-items-center align-items-md-start">
                             <img src="{{ asset('img/logo.png') }}" alt="Logo SDIT" class="mb-2"
                                 style="height: 80px; width: auto;">
-                            <h4 class="fw-bold lh-sm text-uppercase mb-0">SD IT<br>BAITUL INSAN</h4>
+                            <h4 class="fw-bold lh-sm text-uppercase mb-0">YAYASAN PENDIDIKAN BAITUL INSAN</h4>
                         </div>
                     </div>
 
@@ -1052,6 +1314,30 @@
 
                 // Run on history changes (for SPA-like behavior)
                 window.addEventListener('popstate', setActiveNavLink);
+            });
+
+            //dark mode
+            document.addEventListener('DOMContentLoaded', function() {
+                const toggleBtn = document.getElementById('darkModeToggle');
+                const body = document.body;
+
+                // Load mode dari localStorage
+                if (localStorage.getItem('theme') === 'dark') {
+                    body.classList.add('dark-mode');
+                    toggleBtn.innerHTML = '<i class="bi bi-sun-fill"></i>';
+                }
+
+                toggleBtn.addEventListener('click', function() {
+                    body.classList.toggle('dark-mode');
+
+                    if (body.classList.contains('dark-mode')) {
+                        localStorage.setItem('theme', 'dark');
+                        toggleBtn.innerHTML = '<i class="bi bi-sun-fill"></i>';
+                    } else {
+                        localStorage.setItem('theme', 'light');
+                        toggleBtn.innerHTML = '<i class="bi bi-moon-stars-fill"></i>';
+                    }
+                });
             });
         </script>
 

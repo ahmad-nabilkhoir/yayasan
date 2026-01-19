@@ -341,9 +341,12 @@
                             Apakah Anda yakin ingin menerima pendaftaran ini?
                         </div>
                         <div class="mb-3">
-                            <label class="form-label">Tambahkan Catatan (Opsional)</label>
-                            <textarea name="catatan_admin" rows="3" class="form-control"
-                                placeholder="Masukkan catatan untuk pendaftaran ini...">{{ old('catatan_admin', $registration->catatan_admin) }}</textarea>
+                            <label class="form-label">Catatan Admin <span class="text-danger">*</span></label>
+                            <textarea name="catatan_admin" rows="3" class="form-control" required
+                                placeholder="Masukkan catatan untuk pendaftaran ini..." oninput="checkCatatanAdmin()"></textarea>
+                            <div class="invalid-feedback">
+                                Catatan admin harus diisi.
+                            </div>
                         </div>
                         <div class="alert alert-warning">
                             <i class="fas fa-exclamation-triangle me-2"></i>
@@ -450,6 +453,26 @@
         // Handle form submissions
         document.getElementById('approveForm')?.addEventListener('submit', function(e) {
             e.preventDefault();
+
+            // Client-side validation
+            const catatanAdmin = this.querySelector('[name="catatan_admin"]').value.trim();
+            console.log('Catatan admin value:', catatanAdmin);
+
+            if (!catatanAdmin) {
+                console.log('Validation failed: catatan admin kosong');
+                Swal.fire({
+                    title: 'Catatan Diperlukan!',
+                    text: 'Harap isi catatan admin sebelum menerima pendaftaran',
+                    icon: 'warning',
+                    confirmButtonColor: '#ffc107'
+                });
+                // Focus on textarea
+                this.querySelector('[name="catatan_admin"]').focus();
+                return false;
+            }
+
+            console.log('Validation passed, proceeding with submission');
+
             const submitBtn = this.querySelector('button[type="submit"]');
             const originalHTML = submitBtn.innerHTML;
 
@@ -459,8 +482,7 @@
             fetch(this.action, {
                     method: 'POST',
                     headers: {
-                        'X-Requested-With': 'XMLHttpRequest',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                        'X-Requested-With': 'XMLHttpRequest'
                     },
                     body: new FormData(this)
                 })
@@ -563,6 +585,188 @@
                     submitBtn.innerHTML = originalHTML;
                     submitBtn.disabled = false;
                 });
+        });
+    </script>
+
+    <script>
+        function checkCatatanAdmin() {
+            const textarea = document.querySelector('textarea[name="catatan_admin"]');
+            const submitBtn = document.querySelector('button[onclick="approveRegistration()"]');
+
+            if (textarea.value.trim().length === 0) {
+                textarea.classList.add('is-invalid');
+                if (submitBtn) submitBtn.disabled = true;
+            } else {
+                textarea.classList.remove('is-invalid');
+                if (submitBtn) submitBtn.disabled = false;
+            }
+        }
+
+        function approveRegistration() {
+            const textarea = document.querySelector('textarea[name="catatan_admin"]');
+            const catatan = textarea.value.trim();
+
+            console.log('Catatan admin:', catatan);
+
+            if (!catatan) {
+                Swal.fire({
+                    title: 'Perhatian!',
+                    text: 'Harap isi catatan admin sebelum menyetujui pendaftaran',
+                    icon: 'warning',
+                    confirmButtonColor: '#ffc107'
+                });
+                textarea.focus();
+                textarea.classList.add('is-invalid');
+                return;
+            }
+
+            Swal.fire({
+                title: 'Konfirmasi Persetujuan',
+                text: 'Apakah Anda yakin ingin menyetujui pendaftaran ini?',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#28a745',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Ya, Setujui',
+                cancelButtonText: 'Batal'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    const submitBtn = document.querySelector('button[onclick="approveRegistration()"]');
+                    const originalHTML = submitBtn.innerHTML;
+
+                    submitBtn.innerHTML = '<span class="loader me-2"></span>Memproses...';
+                    submitBtn.disabled = true;
+
+                    const formData = new FormData();
+                    formData.append('catatan_admin', catatan);
+                    formData.append('_token', document.querySelector('meta[name="csrf-token"]').content);
+
+                    console.log('Sending approval request with catatan:', catatan);
+
+                    fetch(`/admin/registrations/${registrationId}/approve`, {
+                            method: 'POST',
+                            headers: {
+                                'X-Requested-With': 'XMLHttpRequest'
+                            },
+                            body: formData
+                        })
+                        .then(response => {
+                            console.log('Response status:', response.status);
+                            return response.json();
+                        })
+                        .then(data => {
+                            console.log('Response data:', data);
+
+                            if (data.success) {
+                                Swal.fire({
+                                    title: 'Berhasil!',
+                                    text: data.message,
+                                    icon: 'success',
+                                    confirmButtonColor: '#28a745'
+                                }).then(() => {
+                                    if (data.wa_url) {
+                                        window.open(data.wa_url, '_blank');
+                                    }
+                                    window.location.reload();
+                                });
+                            } else {
+                                throw new Error(data.message || 'Terjadi kesalahan');
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            Swal.fire({
+                                title: 'Error!',
+                                text: error.message,
+                                icon: 'error',
+                                confirmButtonColor: '#dc3545'
+                            });
+                            submitBtn.innerHTML = originalHTML;
+                            submitBtn.disabled = false;
+                        });
+                }
+            });
+        }
+
+        function rejectRegistration() {
+            const textarea = document.querySelector('textarea[name="catatan_admin"]');
+            const catatan = textarea.value.trim();
+
+            if (!catatan) {
+                Swal.fire({
+                    title: 'Perhatian!',
+                    text: 'Harap isi catatan admin sebelum menolak pendaftaran',
+                    icon: 'warning',
+                    confirmButtonColor: '#ffc107'
+                });
+                textarea.focus();
+                textarea.classList.add('is-invalid');
+                return;
+            }
+
+            Swal.fire({
+                title: 'Konfirmasi Penolakan',
+                text: 'Apakah Anda yakin ingin menolak pendaftaran ini?',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#dc3545',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Ya, Tolak',
+                cancelButtonText: 'Batal'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    const submitBtn = document.querySelector('button[onclick="rejectRegistration()"]');
+                    const originalHTML = submitBtn.innerHTML;
+
+                    submitBtn.innerHTML = '<span class="loader me-2"></span>Memproses...';
+                    submitBtn.disabled = true;
+
+                    const formData = new FormData();
+                    formData.append('catatan_admin', catatan);
+                    formData.append('_token', document.querySelector('meta[name="csrf-token"]').content);
+
+                    fetch(`/admin/registrations/${registrationId}/reject`, {
+                            method: 'POST',
+                            headers: {
+                                'X-Requested-With': 'XMLHttpRequest'
+                            },
+                            body: formData
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                Swal.fire({
+                                    title: 'Berhasil!',
+                                    text: data.message,
+                                    icon: 'success',
+                                    confirmButtonColor: '#28a745'
+                                }).then(() => {
+                                    if (data.wa_url) {
+                                        window.open(data.wa_url, '_blank');
+                                    }
+                                    window.location.reload();
+                                });
+                            } else {
+                                throw new Error(data.message || 'Terjadi kesalahan');
+                            }
+                        })
+                        .catch(error => {
+                            Swal.fire({
+                                title: 'Error!',
+                                text: error.message,
+                                icon: 'error',
+                                confirmButtonColor: '#dc3545'
+                            });
+                            submitBtn.innerHTML = originalHTML;
+                            submitBtn.disabled = false;
+                        });
+                }
+            });
+        }
+
+        // Initialize validation on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            checkCatatanAdmin();
         });
     </script>
 @endpush

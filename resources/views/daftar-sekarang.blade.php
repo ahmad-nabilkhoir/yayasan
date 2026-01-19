@@ -4,6 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Pendaftaran PPDB - SD IT Baitul Insan</title>
 
     <!-- Bootstrap CSS -->
@@ -672,6 +673,80 @@
             border-color: #dc3545;
             box-shadow: 0 0 0 0.25rem rgba(220, 53, 69, 0.25);
         }
+
+        /* Modern Validation Styles */
+        .form-control.error {
+            border-color: #dc3545 !important;
+            box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25) !important;
+            animation: shake 0.5s ease-in-out;
+        }
+
+        .error-message {
+            color: #dc3545;
+            font-size: 0.875rem;
+            margin-top: 0.25rem;
+            display: none;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        .error-message.show {
+            display: block;
+        }
+
+        .validation-summary {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            display: none;
+            animation: slideDown 0.3s ease-in-out;
+        }
+
+        .validation-summary.show {
+            display: block;
+        }
+
+        @keyframes shake {
+
+            0%,
+            100% {
+                transform: translateX(0);
+            }
+
+            25% {
+                transform: translateX(-5px);
+            }
+
+            75% {
+                transform: translateX(5px);
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
     </style>
 </head>
 
@@ -777,8 +852,14 @@
         @endif
 
         <!-- Main Form -->
-        <form action="{{ route('daftar.store') }}" method="POST" enctype="multipart/form-data" id="ppdbForm">
+        <form action="{{ url('/daftar-sekarang') }}" method="POST" enctype="multipart/form-data" id="ppdbForm">
             @csrf
+
+            <!-- Validation Summary -->
+            <div class="validation-summary" id="validationSummary">
+                <h6><i class="fas fa-exclamation-triangle"></i> Harap lengkapi data berikut:</h6>
+                <ul id="validationList"></ul>
+            </div>
 
             <!-- Section 1: Data Calon Siswa -->
             <div class="form-container active" id="section1" data-step="1">
@@ -795,6 +876,7 @@
                         <input type="text" class="form-control" name="nama"
                             value="{{ old('nama', $prefillData['nama'] ?? '') }}" placeholder="Nama lengkap sesuai akta"
                             required>
+                        <div class="error-message" id="nama-error"></div>
                     </div>
                     <div class="col-md-6 mb-3">
                         <label class="form-label required">NIK (16 digit)</label>
@@ -802,18 +884,21 @@
                             value="{{ old('nik', $prefillData['nik'] ?? '') }}" maxlength="16"
                             placeholder="16 digit angka" required>
                         <small class="text-muted">Nomor Induk Kependudukan sesuai KK</small>
+                        <div class="error-message" id="nik-error"></div>
                     </div>
                     <div class="col-md-6 mb-3">
                         <label class="form-label required">Tempat Lahir</label>
                         <input type="text" class="form-control" name="tempat_lahir"
                             value="{{ old('tempat_lahir', $prefillData['tempat_lahir'] ?? '') }}"
                             placeholder="Kota/kabupaten tempat lahir" required>
+                        <div class="error-message" id="tempat_lahir-error"></div>
                     </div>
                     <div class="col-md-6 mb-3">
                         <label class="form-label required">Tanggal Lahir</label>
                         <input type="date" class="form-control" name="tanggal_lahir" id="tanggal_lahir"
                             value="{{ old('tanggal_lahir', $prefillData['tanggal_lahir'] ?? '') }}"
                             max="{{ date('Y-m-d') }}" required onchange="calculateAge()">
+                        <div class="error-message" id="tanggal_lahir-error"></div>
                     </div>
                     <div class="col-md-4 mb-3">
                         <label class="form-label required">Umur</label>
@@ -823,6 +908,7 @@
                                 placeholder="5-12" required readonly>
                             <span class="input-group-text">tahun</span>
                         </div>
+                        <div class="error-message" id="umur-error"></div>
                         <small class="text-muted" id="age-message"></small>
                     </div>
                     <div class="col-md-4 mb-3">
@@ -834,28 +920,33 @@
                             <option value="Perempuan" {{ old('jenis_kelamin') == 'Perempuan' ? 'selected' : '' }}>
                                 Perempuan</option>
                         </select>
+                        <div class="error-message" id="jenis_kelamin-error"></div>
                     </div>
                     <div class="col-md-4 mb-3">
                         <label class="form-label required">Asal Sekolah</label>
                         <input type="text" class="form-control" name="asal_sekolah"
                             value="{{ old('asal_sekolah', $prefillData['asal_sekolah'] ?? '') }}"
                             placeholder="TK/PAUD sebelumnya" required>
+                        <div class="error-message" id="asal_sekolah-error"></div>
                     </div>
                     <div class="col-md-3 mb-3">
                         <label class="form-label required">Anak Ke</label>
                         <input type="number" class="form-control" name="anak_ke"
                             value="{{ old('anak_ke', $prefillData['anak_ke'] ?? '') }}" min="1"
                             max="10" required>
+                        <div class="error-message" id="anak_ke-error"></div>
                     </div>
                     <div class="col-md-3 mb-3">
                         <label class="form-label required">Dari Bersaudara</label>
                         <input type="number" class="form-control" name="dari_bersaudara"
                             value="{{ old('dari_bersaudara', $prefillData['dari_bersaudara'] ?? '') }}"
                             min="1" max="10" required>
+                        <div class="error-message" id="dari_bersaudara-error"></div>
                     </div>
                     <div class="col-12 mb-3">
                         <label class="form-label required">Alamat Lengkap Calon Siswa</label>
                         <textarea class="form-control" name="alamat" rows="3" placeholder="Alamat lengkap tempat tinggal" required>{{ old('alamat', $prefillData['alamat'] ?? '') }}</textarea>
+                        <div class="error-message" id="alamat-error"></div>
                     </div>
                 </div>
                 <div class="navigation-buttons">
@@ -880,23 +971,27 @@
                         <label class="form-label required">Nama Ayah</label>
                         <input type="text" class="form-control" name="nama_ayah"
                             value="{{ old('nama_ayah', $prefillData['nama_ayah'] ?? '') }}" required>
+                        <div class="error-message" id="nama_ayah-error"></div>
                     </div>
                     <div class="col-md-6 mb-3">
                         <label class="form-label required">Nama Ibu</label>
                         <input type="text" class="form-control" name="nama_ibu"
                             value="{{ old('nama_ibu', $prefillData['nama_ibu'] ?? '') }}" required>
+                        <div class="error-message" id="nama_ibu-error"></div>
                     </div>
                     <div class="col-md-6 mb-3">
                         <label class="form-label required">No. HP Ayah</label>
                         <input type="tel" class="form-control" name="no_hp_ayah" id="no_hp_ayah"
                             value="{{ old('no_hp_ayah', $prefillData['no_hp_ayah'] ?? '') }}"
                             placeholder="08xxxxxxxxxx" required>
+                        <div class="error-message" id="no_hp_ayah-error"></div>
                     </div>
                     <div class="col-md-6 mb-3">
                         <label class="form-label required">No. HP Ibu</label>
                         <input type="tel" class="form-control" name="no_hp_ibu" id="no_hp_ibu"
                             value="{{ old('no_hp_ibu', $prefillData['no_hp_ibu'] ?? '') }}"
                             placeholder="08xxxxxxxxxx" required>
+                        <div class="error-message" id="no_hp_ibu-error"></div>
                     </div>
                     <div class="col-md-6 mb-3">
                         <label class="form-label required">Penghasilan Orang Tua</label>
@@ -913,6 +1008,7 @@
                             <option value="> 10 juta" {{ old('pendapatan') == '> 10 juta' ? 'selected' : '' }}>Lebih
                                 dari 10 juta</option>
                         </select>
+                        <div class="error-message" id="pendapatan-error"></div>
                     </div>
                     <div class="col-12 mb-3">
                         <label class="form-label required">Alamat Orang Tua</label>
@@ -1026,7 +1122,7 @@
                     <h3>Persetujuan</h3>
                 </div>
                 <div class="form-check mb-4">
-                    <input class="form-check-input" type="checkbox" id="agree" required>
+                    <input class="form-check-input" type="checkbox" id="agree">
                     <label class="form-check-label" for="agree">
                         <strong>Saya menyatakan bahwa data yang saya isi adalah benar dan dapat
                             dipertanggungjawabkan.</strong><br>
@@ -1203,50 +1299,118 @@
 
         // ==================== STEP VALIDATION ====================
         function validateStep(stepNumber) {
+            // Clear previous errors
+            clearValidationErrors();
+
             const section = document.getElementById(`section${stepNumber}`);
             const inputs = section.querySelectorAll('input[required], select[required], textarea[required]');
+            let errors = [];
+            let firstErrorField = null;
 
             for (let input of inputs) {
                 if (input.type === 'file') continue;
 
+                const fieldName = input.name;
+                const errorDiv = document.getElementById(`${fieldName}-error`);
+
                 if (!input.value.trim()) {
                     const label = input.previousElementSibling?.textContent?.replace(' *', '') || input
-                        .previousElementSibling?.textContent || 'Field';
-                    alert(`Harap isi ${label}`);
-                    input.focus();
-                    return false;
+                        .previousElementSibling?.textContent || fieldName;
+                    const errorMsg = `${label} wajib diisi`;
+
+                    errors.push(errorMsg);
+                    input.classList.add('error');
+
+                    if (errorDiv) {
+                        errorDiv.textContent = errorMsg;
+                        errorDiv.classList.add('show');
+                    }
+
+                    if (!firstErrorField) firstErrorField = input;
+                } else {
+                    input.classList.remove('error');
+                    if (errorDiv) {
+                        errorDiv.classList.remove('show');
+                    }
                 }
             }
 
+            // Special validations
             if (stepNumber === 1) {
                 const nikInput = document.querySelector('input[name="nik"]');
-                if (nikInput.value.length !== 16) {
-                    alert('NIK harus 16 digit angka');
-                    nikInput.focus();
-                    return false;
+                if (nikInput.value && nikInput.value.length !== 16) {
+                    const errorMsg = 'NIK harus 16 digit angka';
+                    errors.push(errorMsg);
+                    nikInput.classList.add('error');
+                    document.getElementById('nik-error').textContent = errorMsg;
+                    document.getElementById('nik-error').classList.add('show');
+                    if (!firstErrorField) firstErrorField = nikInput;
                 }
 
                 const ageInput = document.getElementById('umur');
-                if (ageInput.value < 5 || ageInput.value > 12) {
-                    alert('Umur harus antara 5 - 12 tahun untuk pendaftaran SD');
-                    ageInput.focus();
-                    return false;
+                if (ageInput.value && (ageInput.value < 5 || ageInput.value > 12)) {
+                    const errorMsg = 'Umur harus antara 5 - 12 tahun untuk pendaftaran SD';
+                    errors.push(errorMsg);
+                    ageInput.classList.add('error');
+                    document.getElementById('umur-error').textContent = errorMsg;
+                    document.getElementById('umur-error').classList.add('show');
+                    if (!firstErrorField) firstErrorField = ageInput;
                 }
             }
 
             if (stepNumber === 2) {
                 const phoneInputs = section.querySelectorAll('input[type="tel"]');
                 for (let input of phoneInputs) {
-                    if (input.value.length < 10 || input.value.length > 13) {
+                    if (input.value && (input.value.length < 10 || input.value.length > 13)) {
                         const label = input.previousElementSibling.textContent.replace(' *', '');
-                        alert(`${label} harus 10-13 digit`);
-                        input.focus();
-                        return false;
+                        const errorMsg = `${label} harus 10-13 digit`;
+                        errors.push(errorMsg);
+                        input.classList.add('error');
+                        document.getElementById(`${input.name}-error`).textContent = errorMsg;
+                        document.getElementById(`${input.name}-error`).classList.add('show');
+                        if (!firstErrorField) firstErrorField = input;
                     }
                 }
             }
 
+            // Show validation summary if there are errors
+            if (errors.length > 0) {
+                const validationList = document.getElementById('validationList');
+                validationList.innerHTML = errors.map(error => `<li>${error}</li>`).join('');
+                document.getElementById('validationSummary').classList.add('show');
+
+                // Scroll to validation summary
+                document.getElementById('validationSummary').scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'center'
+                });
+
+                // Focus first error field
+                if (firstErrorField) {
+                    firstErrorField.focus();
+                }
+
+                return false;
+            }
+
+            // Hide validation summary if no errors
+            document.getElementById('validationSummary').classList.remove('show');
             return true;
+        }
+
+        function clearValidationErrors() {
+            // Remove error classes from inputs
+            document.querySelectorAll('.form-control.error').forEach(input => {
+                input.classList.remove('error');
+            });
+
+            // Hide error messages
+            document.querySelectorAll('.error-message.show').forEach(div => {
+                div.classList.remove('show');
+            });
+
+            // Hide validation summary
+            document.getElementById('validationSummary').classList.remove('show');
         }
 
         // ==================== STEP INDICATOR ====================
@@ -1389,8 +1553,8 @@
             document.getElementById('ppdbForm').addEventListener('submit', async function(e) {
                 e.preventDefault();
 
-                // Validate all steps
-                for (let i = 1; i <= totalSteps; i++) {
+                // Validate all steps except step 4 (will be validated separately)
+                for (let i = 1; i < totalSteps; i++) {
                     if (!validateStep(i)) {
                         document.querySelectorAll('.form-container').forEach(container => {
                             container.classList.remove('active');
@@ -1411,7 +1575,22 @@
 
                 for (let input of fileInputs) {
                     if (input.files.length > 0 && input.files[0].size > maxSize) {
-                        alert(`File ${input.name} melebihi ukuran maksimal 2MB`);
+                        console.log('❌ File too large:', input.name);
+                        // Clear previous errors
+                        clearValidationErrors();
+
+                        // Show file size error
+                        const errorMsg = `File ${input.name} melebihi ukuran maksimal 2MB`;
+                        document.getElementById('validationList').innerHTML = `<li>${errorMsg}</li>`;
+                        document.getElementById('validationSummary').classList.add('show');
+
+                        // Scroll to validation summary
+                        document.getElementById('validationSummary').scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'center'
+                        });
+
+                        // Go to step 3 (file upload step)
                         document.querySelectorAll('.form-container').forEach(container => {
                             container.classList.remove('active');
                         });
@@ -1424,13 +1603,6 @@
                         input.focus();
                         return;
                     }
-                }
-
-                // Validate agreement
-                if (!document.getElementById('agree').checked) {
-                    alert('Anda harus menyetujui pernyataan sebelum mengirim formulir');
-                    document.getElementById('agree').focus();
-                    return;
                 }
 
                 // Show loading state
@@ -1446,10 +1618,25 @@
                     // Create FormData object
                     const formData = new FormData(this);
 
+                    // Add CSRF token for AJAX request
+                    const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute(
+                            'content') ||
+                        document.querySelector('input[name="_token"]')?.value ||
+                        '{{ csrf_token() }}';
+                    if (csrfToken) {
+                        formData.append('_token', csrfToken);
+                    }
+
                     // Send AJAX request
-                    const response = await fetch(this.action, {
+                    const baseUrl = window.location.origin;
+                    const actionUrl = this.action.startsWith('http') ? this.action : baseUrl + this
+                        .action;
+
+                    const response = await fetch(actionUrl, {
                         method: 'POST',
                         body: formData,
+                        mode: 'cors',
+                        credentials: 'include',
                         headers: {
                             'X-Requested-With': 'XMLHttpRequest',
                             'Accept': 'application/json'
@@ -1462,20 +1649,49 @@
                         // Show success modal with data from response
                         showSuccessModal(result.data);
                     } else {
+                        // Clear previous errors
+                        clearValidationErrors();
+
                         // Show validation errors
                         if (result.errors) {
                             let errorMessages = [];
                             for (let field in result.errors) {
                                 errorMessages.push(result.errors[field][0]);
                             }
-                            alert('Validasi gagal:\n' + errorMessages.join('\n'));
+                            document.getElementById('validationList').innerHTML = errorMessages.map(
+                                error => `<li>${error}</li>`).join('');
+                            document.getElementById('validationSummary').classList.add('show');
+
+                            // Scroll to validation summary
+                            document.getElementById('validationSummary').scrollIntoView({
+                                behavior: 'smooth',
+                                block: 'center'
+                            });
                         } else {
-                            alert(result.message || 'Terjadi kesalahan. Silakan coba lagi.');
+                            document.getElementById('validationList').innerHTML =
+                                `<li>${result.message || 'Terjadi kesalahan. Silakan coba lagi.'}</li>`;
+                            document.getElementById('validationSummary').classList.add('show');
+
+                            // Scroll to validation summary
+                            document.getElementById('validationSummary').scrollIntoView({
+                                behavior: 'smooth',
+                                block: 'center'
+                            });
                         }
                     }
                 } catch (error) {
-                    console.error('Error:', error);
-                    alert('Terjadi kesalahan jaringan. Silakan coba lagi.');
+                    console.error('AJAX failed, trying fallback submit:', error);
+
+                    // Fallback: Submit form normally if AJAX fails
+                    console.log('🔄 Falling back to normal form submission...');
+
+                    // Remove event listener temporarily
+                    this.removeEventListener('submit', arguments.callee);
+
+                    // Submit form normally
+                    this.submit();
+
+                    return; // Don't execute finally block
                 } finally {
                     // Reset button state
                     submitBtn.disabled = false;

@@ -173,7 +173,7 @@
 
                     <div class="card rounded-4 border-0 shadow-sm">
                         <div class="card-body p-4">
-                            <h6 class="fw-bold mb-3">Thumbnail Utama</h6>
+                            <h6 class="fw-bold mb-3">Foto Utama</h6>
                             @if (isset($artikel) && $artikel->thumbnail)
                                 <img src="{{ asset('storage/' . $artikel->thumbnail) }}"
                                     class="img-fluid rounded-3 w-100 mb-3 border shadow-sm">

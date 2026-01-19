@@ -686,7 +686,7 @@
             });
         });
 
-        // Fungsi Approve
+        // Fungsi Approve (Diperbaiki - Kirim catatan admin)
         function approveRegistration(id) {
             Swal.fire({
                 title: 'Konfirmasi Penerimaan',
@@ -697,23 +697,41 @@
                 cancelButtonColor: '#6c757d',
                 confirmButtonText: 'Ya, Terima',
                 cancelButtonText: 'Batal',
+                input: 'textarea',
+                inputLabel: 'Catatan Admin',
+                inputPlaceholder: 'Masukkan catatan untuk pendaftaran ini...',
+                inputAttributes: {
+                    'aria-label': 'Masukkan catatan admin'
+                },
+                inputValidator: (value) => {
+                    if (!value || !value.trim()) {
+                        return 'Harap isi catatan admin!';
+                    }
+                },
                 showLoaderOnConfirm: true,
-                preConfirm: () => {
+                preConfirm: (catatan) => {
+                    const formData = new FormData();
+                    formData.append('catatan_admin', catatan.trim());
+                    formData.append('_token', document.querySelector('meta[name="csrf-token"]').content);
+
                     return fetch(`/admin/ppdb/${id}/approve`, {
                             method: 'POST',
                             headers: {
                                 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
                                 'Accept': 'application/json'
-                            }
+                            },
+                            body: formData
                         })
                         .then(response => {
                             if (!response.ok) {
-                                throw new Error(response.statusText);
+                                return response.json().then(err => {
+                                    throw new Error(err.message || 'Terjadi kesalahan');
+                                });
                             }
                             return response.json();
                         })
                         .catch(error => {
-                            Swal.showValidationMessage(`Request failed: ${error}`);
+                            Swal.showValidationMessage(`Request failed: ${error.message}`);
                         });
                 }
             }).then((result) => {
@@ -915,7 +933,18 @@
                 confirmButtonColor: '#28a745',
                 cancelButtonColor: '#6c757d',
                 confirmButtonText: 'Ya, Terima',
-                cancelButtonText: 'Batal'
+                cancelButtonText: 'Batal',
+                input: 'textarea',
+                inputLabel: 'Catatan Admin',
+                inputPlaceholder: 'Masukkan catatan untuk pendaftaran ini...',
+                inputAttributes: {
+                    'aria-label': 'Masukkan catatan admin'
+                },
+                inputValidator: (value) => {
+                    if (!value) {
+                        return 'Harap isi catatan admin!';
+                    }
+                }
             }).then((result) => {
                 if (result.isConfirmed) {
                     const form = document.createElement('form');
@@ -930,8 +959,13 @@
                     idsField.type = 'hidden';
                     idsField.name = 'ids';
                     idsField.value = JSON.stringify(selectedIds);
+                    const catatanField = document.createElement('input');
+                    catatanField.type = 'hidden';
+                    catatanField.name = 'catatan_admin';
+                    catatanField.value = result.value;
                     form.appendChild(csrfToken);
                     form.appendChild(idsField);
+                    form.appendChild(catatanField);
                     document.body.appendChild(form);
                     Swal.fire({
                         title: 'Memproses...',

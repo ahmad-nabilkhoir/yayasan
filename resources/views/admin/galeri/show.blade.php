@@ -130,5 +130,43 @@
                 reader.readAsDataURL(input.files[0]);
             }
         }
+
+        function previewImage(input) {
+            const file = input.files[0];
+            if (!file) return;
+
+            const maxSize = 5 * 1024 * 1024; // 5MB
+            const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/webp'];
+
+            if (!allowedTypes.includes(file.type)) {
+                alert('Format tidak didukung!');
+                input.value = '';
+                return;
+            }
+
+            if (file.size > maxSize) {
+                alert('Ukuran maksimal 5MB');
+                input.value = '';
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = e => {
+                const preview = document.getElementById('preview') ||
+                    document.getElementById('image-preview');
+
+                if (preview) preview.src = e.target.result;
+
+                document.getElementById('preview-container')?.classList.remove('hidden');
+                document.getElementById('preview-container')?.classList.remove('d-none');
+
+                const old = document.getElementById('preview-old') ||
+                    document.getElementById('preview-current');
+
+                if (old) old.style.display = 'none';
+            };
+
+            reader.readAsDataURL(file);
+        }
     </script>
 @endpush

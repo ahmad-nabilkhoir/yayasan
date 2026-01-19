@@ -186,7 +186,7 @@
                 <span class="badge bg-primary-soft text-primary rounded-pill fw-semibold mb-3 px-4 py-2">
                     <i class="bi bi-compass me-1"></i> Visi & Misi
                 </span>
-                <h2 class="display-5 fw-bold text-dark mb-3">Visi Misi SD Baitul Insan</h2>
+                <h2 class="display-5 fw-bold text-dark mb-3">Visi Misi TK Baitul Insan</h2>
                 <p class="text-muted fs-5">Panduan dalam menyelenggarakan pendidikan dasar Islam terpadu</p>
             </div>
 

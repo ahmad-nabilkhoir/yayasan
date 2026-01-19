@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Carbon\Carbon;
 
+
 class AdminPpdbController extends Controller
 {
     /* ================= LIST DATA PPDB ================= */
@@ -152,6 +153,20 @@ class AdminPpdbController extends Controller
 
     public function approve(Request $request, $id)
     {
+
+        $request->validate([
+            'catatan_admin' => 'nullable|string|max:1000',
+        ]);
+
+        // Pastikan catatan_admin tidak kosong
+        if (empty(trim($request->catatan_admin))) {
+            Log::warning('Catatan admin kosong');
+            return response()->json([
+                'success' => false,
+                'message' => 'Catatan admin harus diisi'
+            ], 422);
+        }
+
         try {
             $ppdb = Ppdb::findOrFail($id);
 
@@ -177,6 +192,9 @@ class AdminPpdbController extends Controller
                 "• No. Pendaftaran: *{$ppdb->no_pendaftaran}*\n" .
                 "• Asal Sekolah: *{$ppdb->asal_sekolah}*\n\n" .
                 "*STATUS: DITERIMA*\n\n" .
+                "*CATATAN ADMIN*\n" .
+                "============================\n" .
+                (!empty($ppdb->catatan_admin) ? $ppdb->catatan_admin . "\n\n" : "Selamat bergabung dengan keluarga besar SD IT Baitul Insan!\n\n") .
                 "*TAHAP SELANJUTNYA*\n" .
                 "============================\n" .
                 "1. *Daftar Ulang* di sekolah\n" .
@@ -246,6 +264,18 @@ class AdminPpdbController extends Controller
 
     public function reject(Request $request, $id)
     {
+        $request->validate([
+            'catatan_admin' => 'nullable|string|max:1000',
+        ]);
+
+        // Pastikan catatan_admin tidak kosong
+        if (empty(trim($request->catatan_admin))) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Catatan admin harus diisi'
+            ], 422);
+        }
+
         try {
             $ppdb = Ppdb::findOrFail($id);
 
@@ -271,12 +301,9 @@ class AdminPpdbController extends Controller
                 "• No. Pendaftaran: *{$ppdb->no_pendaftaran}*\n" .
                 "• Asal Sekolah: *{$ppdb->asal_sekolah}*\n\n" .
                 "*STATUS: BELUM DAPAT DITERIMA*\n\n" .
-                "*CATATAN*\n" .
+                "*CATATAN ADMIN*\n" .
                 "============================\n" .
-                "Keputusan ini berdasarkan pertimbangan:\n" .
-                "• Kuota kelas yang terbatas\n" .
-                "• Hasil seleksi administrasi\n" .
-                "• Rasio jumlah pendaftar\n\n" .
+                (!empty($ppdb->catatan_admin) ? $ppdb->catatan_admin . "\n\n" : "Tidak ada catatan tambahan.\n\n") .
                 "*KATA MOTIVASI*\n" .
                 "============================\n" .
                 "\"Sesungguhnya bersama kesulitan ada kemudahan.\"\n" .
@@ -765,6 +792,7 @@ class AdminPpdbController extends Controller
         $request->validate([
             'ids' => 'required|array',
             'ids.*' => 'exists:ppdbs,id',
+            'catatan_admin' => 'required|string|max:1000',
         ]);
 
         $count = Ppdb::whereIn('id', $request->ids)->update([
@@ -772,6 +800,7 @@ class AdminPpdbController extends Controller
             'disetujui_pada' => now(),
             'disetujui_oleh' => Auth::user()->name,
             'sudah_dihubungi' => 1,
+            'catatan_admin' => $request->catatan_admin,
         ]);
 
         return redirect()

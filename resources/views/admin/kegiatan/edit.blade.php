@@ -72,16 +72,15 @@
                                         style="max-height: 200px; object-fit: cover;">
                                 </div>
                             </div>
-
-                            {{-- Di dalam form, tambahkan: --}}
+                            {{-- Di dalam form, ganti bagian video menjadi: --}}
                             <div class="mb-3">
-                                <label for="video" class="form-label">URL Video (YouTube) atau Path Video</label>
+                                <label for="video" class="form-label">URL Video (YouTube)</label>
                                 <input type="text" class="form-control" id="video" name="video"
-                                    value="{{ old('video', $kegiatan->video ?? '') }}"
-                                    placeholder="Contoh: https://youtube.com/watch?v=... atau upload file video">
+                                    value="{{ old('video', $kegiatan->is_youtube ? $kegiatan->video : '') }}"
+                                    placeholder="Contoh: https://youtube.com/watch?v=...">
                                 <small class="text-muted">
-                                    Masukkan URL YouTube atau kosongkan jika tidak ada video.
-                                    Atau upload file video MP4 di field di bawah.
+                                    Masukkan URL YouTube jika ingin tampilkan video dari YouTube.
+                                    Biarkan kosong jika menggunakan video upload lokal.
                                 </small>
                             </div>
 
@@ -91,15 +90,22 @@
                                     accept="video/mp4,video/webm,video/ogg">
                                 <small class="text-muted">
                                     Maksimal 50MB. Format: MP4, WebM, OGG.
-                                    @if (isset($kegiatan) && $kegiatan->video && !$kegiatan->is_youtube)
+                                    @if ($kegiatan->video && !$kegiatan->is_youtube)
                                         <br>Video saat ini:
                                         <a href="{{ asset('storage/' . $kegiatan->video) }}" target="_blank">
                                             {{ basename($kegiatan->video) }}
                                         </a>
+                                        <br>
+                                        <div class="form-check mt-2">
+                                            <input class="form-check-input" type="checkbox" id="remove_video_file"
+                                                name="remove_video_file" value="1">
+                                            <label class="form-check-label text-danger" for="remove_video_file">
+                                                Centang untuk menghapus video upload saat disimpan
+                                            </label>
+                                        </div>
                                     @endif
                                 </small>
                             </div>
-
                             <div class="row">
                                 <div class="col-md-6 mb-4">
                                     <label for="kategori" class="form-label fw-bold">Kategori *</label>
@@ -210,17 +216,20 @@
                                 </div>
                             </div>
 
-                            <div class="mb-4">
-                                <label for="tags" class="form-label fw-bold">Tags (opsional)</label>
-                                <input type="text" class="form-control rounded-3 @error('tags') is-invalid @enderror"
-                                    id="tags" name="tags"
-                                    value="{{ old('tags', $kegiatan->tags ? implode(', ', $kegiatan->tags) : '') }}"
-                                    placeholder="Pisahkan dengan koma, contoh: pendidikan, outing, siswa">
-                                <div class="form-text">Maksimal 5 tags, pisahkan dengan koma</div>
-                                @error('tags')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
+                            @php
+                                $tags = is_array($kegiatan->tags)
+                                    ? $kegiatan->tags
+                                    : (is_string($kegiatan->tags)
+                                        ? array_map('trim', explode(',', $kegiatan->tags))
+                                        : []);
+                            @endphp
+
+                            @foreach (array_slice($tags, 0, 2) as $tag)
+                                <span class="badge rounded-pill bg-light text-dark border">
+                                    {{ $tag }}
+                                </span>
+                            @endforeach
+
 
                             <div class="mb-4">
                                 <div class="form-check form-switch">
@@ -299,12 +308,20 @@
                                     @endphp
                                     {{ $kategoriLabels[$kegiatan->kategori] ?? 'Umum' }}
                                 </span>
-                                @if ($kegiatan->tags)
-                                    @foreach (array_slice($kegiatan->tags, 0, 2) as $tag)
-                                        <span
-                                            class="badge rounded-pill bg-light text-dark border">{{ $tag }}</span>
-                                    @endforeach
-                                @endif
+                                @php
+                                    $tags = is_array($kegiatan->tags)
+                                        ? $kegiatan->tags
+                                        : (is_string($kegiatan->tags)
+                                            ? array_map('trim', explode(',', $kegiatan->tags))
+                                            : []);
+                                @endphp
+
+                                @foreach (array_slice($tags, 0, 2) as $tag)
+                                    <span class="badge rounded-pill bg-light text-dark border">
+                                        {{ $tag }}
+                                    </span>
+                                @endforeach
+
                             </div>
                             <div class="border-top mt-3 pt-3">
                                 <small class="text-muted">

@@ -6,39 +6,50 @@ use App\Http\Controllers\Controller;
 use App\Models\Galeri;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
+use Intervention\Image\ImageManager;
+use Intervention\Image\Drivers\Gd\Driver;
 
 class AdminGaleriController extends Controller
 {
+    protected ImageManager $image;
+
+    public function __construct()
+    {
+        $this->image = new ImageManager(new Driver());
+    }
+
     public function index(Request $request)
     {
-        // Ambil filter dari request
         $kategoriFilter = $request->input('kategori', 'all');
 
-        // Query dengan filter
         $query = Galeri::latest();
 
-        if ($kategoriFilter != 'all') {
+        if ($kategoriFilter !== 'all') {
             $query->where('kategori', $kategoriFilter);
         }
 
         $galeri = $query->paginate(12);
 
-        // Ambil semua kategori unik dari database
         $allKategoris = Galeri::select('kategori')->distinct()->pluck('kategori');
 
-        // Hitung statistik untuk setiap kategori
         $stats = [];
         foreach ($allKategoris as $kategori) {
             $stats[$kategori] = Galeri::where('kategori', $kategori)->count();
         }
 
-        // Map warna untuk kategori
         $colorMap = [
             'TK' => '#fbbf24',
-            'SD' => '#3b82f6'
+            'SD' => '#3b82f6',
         ];
 
-        return view('admin.galeri.index', compact('galeri', 'allKategoris', 'stats', 'colorMap', 'kategoriFilter'));
+        return view('admin.galeri.index', compact(
+            'galeri',
+            'allKategoris',
+            'stats',
+            'colorMap',
+            'kategoriFilter'
+        ));
     }
 
     public function create()
@@ -51,16 +62,16 @@ class AdminGaleriController extends Controller
         $validated = $request->validate([
             'judul' => 'required|max:255',
             'kategori' => 'required|in:TK,SD',
-            'foto' => 'required|image|mimes:jpeg,png,jpg|max:2048',
+            'foto' => 'required|image|mimes:jpg,jpeg,png|max:5120',
             'deskripsi' => 'nullable'
         ]);
 
-        if ($request->hasFile('foto')) {
-            $validated['foto'] = $request->file('foto')->store('galeri', 'public');
-        }
+        $validated['foto'] = $this->processImage($request->file('foto'));
 
         Galeri::create($validated);
-        return redirect()->route('admin.galeri.index')->with('success', 'Foto berhasil ditambahkan');
+
+        return redirect()->route('admin.galeri.index')
+            ->with('success', 'Foto berhasil ditambahkan');
     }
 
     public function edit($id)
@@ -72,27 +83,50 @@ class AdminGaleriController extends Controller
     public function update(Request $request, $id)
     {
         $galeri = Galeri::findOrFail($id);
+
         $validated = $request->validate([
             'judul' => 'required|max:255',
             'kategori' => 'required|in:TK,SD',
-            'foto' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+            'foto' => 'nullable|image|mimes:jpg,jpeg,png|max:5120',
             'deskripsi' => 'nullable'
         ]);
 
         if ($request->hasFile('foto')) {
-            if ($galeri->foto) Storage::disk('public')->delete($galeri->foto);
-            $validated['foto'] = $request->file('foto')->store('galeri', 'public');
+            Storage::disk('public')->delete($galeri->foto);
+            $validated['foto'] = $this->processImage($request->file('foto'));
         }
 
         $galeri->update($validated);
-        return redirect()->route('admin.galeri.index')->with('success', 'Galeri diperbarui');
+
+        return redirect()->route('admin.galeri.index')
+            ->with('success', 'Galeri diperbarui');
     }
 
     public function destroy($id)
     {
         $galeri = Galeri::findOrFail($id);
-        if ($galeri->foto) Storage::disk('public')->delete($galeri->foto);
+
+        Storage::disk('public')->delete($galeri->foto);
         $galeri->delete();
-        return redirect()->route('admin.galeri.index')->with('success', 'Foto dihapus');
+
+        return redirect()->route('admin.galeri.index')
+            ->with('success', 'Foto dihapus');
+    }
+
+    /**
+     * 🔥 AUTO RESIZE + COMPRESS + WEBP
+     */
+    private function processImage($file): string
+    {
+        $filename = Str::uuid() . '.webp';
+        $path = 'galeri/' . $filename;
+
+        $image = $this->image->read($file)
+            ->scale(width: 1200)
+            ->toWebp(75);
+
+        Storage::disk('public')->put($path, (string) $image);
+
+        return $path;
     }
 }

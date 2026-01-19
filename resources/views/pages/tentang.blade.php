@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Tentang Yayasan - Yayasan Baitul Insan')
+@section('title', 'Tentang Yayasan - Yayasan Pendidikan Baitul Insan')
 
 @section('content')
     <style>
@@ -45,7 +45,7 @@
             width: 100%;
             height: 100%;
             object-fit: cover;
-            object-position: center top;
+            object-position: center;
         }
 
         /* Label Nama & Jabatan */
@@ -73,7 +73,7 @@
             display: block;
         }
 
-        /* Section Spacing */
+        /* Section Title */
         .section-title-custom {
             letter-spacing: 2px;
             font-size: 1.25rem;
@@ -93,7 +93,7 @@
             border-radius: 10px;
         }
 
-        /* Sejarah Section Styles */
+        /* Sejarah Section */
         .sejarah-header {
             text-align: center;
             margin-bottom: 40px;
@@ -125,22 +125,48 @@
             padding: 40px;
             box-shadow: 0 10px 30px rgba(0, 35, 102, 0.08);
             margin-bottom: 50px;
+            line-height: 1.7;
         }
 
-        /* Styling untuk gambar dalam konten sejarah */
-        .sejarah-content img {
+        /* Konten Dinamis dari CKEditor */
+        .content-dynamic h1,
+        .content-dynamic h2,
+        .content-dynamic h3,
+        .content-dynamic h4 {
+            color: #002366;
+            margin: 1.5em 0 1em;
+        }
+
+        .content-dynamic p {
+            margin-bottom: 1.2em;
+            color: #333;
+        }
+
+        .content-dynamic ul,
+        .content-dynamic ol {
+            padding-left: 1.5rem;
+            margin-bottom: 1.2em;
+        }
+
+        .content-dynamic li {
+            margin-bottom: 0.4em;
+        }
+
+        /* Gambar dalam konten */
+        .content-dynamic img {
             max-width: 100%;
             height: auto;
-            border-radius: 15px;
+            border-radius: 12px;
+            margin: 1.2em 0;
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
             transition: transform 0.3s ease;
         }
 
-        .sejarah-content img:hover {
+        .content-dynamic img:hover {
             transform: scale(1.02);
         }
 
-        /* Layout khusus untuk gambar + teks side by side */
+        /* Layout side-by-side (opsional) */
         .image-text-wrapper {
             display: flex;
             flex-wrap: wrap;
@@ -152,6 +178,8 @@
         .image-text-wrapper img {
             flex: 0 0 300px;
             max-width: 100%;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
         }
 
         .image-text-wrapper .text-content {
@@ -159,22 +187,7 @@
             min-width: 300px;
         }
 
-        /* Responsive images */
-        .img-fluid-hd {
-            max-width: 100%;
-            height: auto;
-            object-fit: cover;
-        }
-
-        .img-rounded-lg {
-            border-radius: 15px;
-        }
-
-        .img-shadow {
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
-        }
-
-        /* Timeline untuk sejarah */
+        /* Timeline */
         .timeline {
             position: relative;
             padding-left: 30px;
@@ -224,6 +237,19 @@
             border-radius: 10px;
             border-left: 3px solid #2547bc;
         }
+
+        /* Gallery */
+        .gallery-img {
+            height: 250px;
+            object-fit: cover;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .gallery-img:hover {
+            transform: scale(1.03);
+        }
     </style>
 
     <div class="container py-5">
@@ -233,133 +259,151 @@
             <p class="text-muted fs-5 fw-medium">Profil Yayasan & Struktur Tenaga Pendidik</p>
         </div>
 
-
         {{-- Section Sejarah --}}
         <div class="sejarah-header">
-            <h2 class="sejarah-title">Sejarah Yayasan</h2>
+            <h2 class="sejarah-title">{{ $tentang?->judul ?? 'Sejarah Yayasan' }}</h2>
             <p class="text-muted fs-5">Perjalanan panjang dalam membangun pendidikan berkualitas</p>
         </div>
 
-        {{-- Container untuk konten sejarah --}}
-        <div class="sejarah-content">
-            {{-- Jika ada gambar utama sejarah --}}
-            @if (isset($tentang->thumbnail))
+        {{-- Konten Sejarah --}}
+        @if ($tentang)
+            <div class="sejarah-content">
+                {{-- Thumbnail utama dari Database --}}
+                @if ($tentang->thumbnail)
+                    <div class="mb-5 text-center">
+                        <img src="{{ asset('storage/' . $tentang->thumbnail) }}" alt="{{ $tentang->judul }}"
+                            class="img-fluid rounded-3 w-100 shadow-sm" style="max-height: 500px; object-fit: cover;">
+                        <p class="text-muted small mt-2">Gedung Yayasan Pendidikan Baitul Insan</p>
+                    </div>
+                @endif
+
+                {{-- Konten dinamis (HTML dari CKEditor) --}}
+                <div class="content-dynamic">
+                    {!! $tentang->isi !!}
+                </div>
+
+                {{-- Timeline (sinkron dengan variabel dari controller) --}}
+                @if (isset($timeline) && $timeline->isNotEmpty())
+                    <div class="timeline mt-5 pt-3">
+                        @foreach ($timeline as $item)
+                            <div class="timeline-item">
+                                <div class="timeline-year">{{ $item->tahun }}</div>
+                                <div class="timeline-content">
+                                    <h6 class="fw-bold mb-1">{{ $item->judul }}</h6>
+                                    <p class="mb-0">{{ $item->deskripsi }}</p>
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                @endif
+
+                {{-- Gallery Sejarah --}}
+                <div class="row g-4 mt-5">
+                    @for ($i = 1; $i <= 3; $i++)
+                        @php $imgSejarah = "img/sejarah-{$i}.jpg"; @endphp
+                        @if (file_exists(public_path($imgSejarah)))
+                            <div class="col-md-4">
+                                <img src="{{ asset($imgSejarah) }}" alt="Dokumentasi Sejarah {{ $i }}"
+                                    class="w-100 gallery-img">
+                            </div>
+                        @endif
+                    @endfor
+                </div>
+            </div>
+        @else
+            <div class="py-5 text-center">
+                <i class="bi bi-exclamation-circle text-muted" style="font-size: 3rem;"></i>
+                <p class="text-muted mt-3">Konten sejarah yayasan belum tersedia.</p>
+            </div>
+        @endif
+
+        {{-- Struktur Organisasi --}}
+        @if ($pimpinan->isNotEmpty() || $kepsek->isNotEmpty() || $guru->isNotEmpty())
+
+            {{-- Bagian Pimpinan --}}
+            @if ($pimpinan->isNotEmpty())
                 <div class="mb-5 text-center">
-                    <img src="{{ asset('storage/' . $tentang->thumbnail) }}" alt="Sejarah Yayasan Baitul Insan"
-                        class="img-fluid img-rounded-lg img-shadow w-100" style="max-height: 500px; object-fit: cover;">
-                    <p class="text-muted small mt-2">Gedung Yayasan Baitul Insan</p>
+                    <h4 class="fw-bold text-primary text-uppercase section-title-custom">Pimpinan Yayasan</h4>
+                    <div class="row g-4 justify-content-center">
+                        @foreach ($pimpinan as $p)
+                            <div class="col-6 col-md-4 col-lg-3">
+                                <div class="card-staff-custom">
+                                    <div class="img-frame">
+                                        <img src="{{ asset('storage/' . $p->foto) }}" alt="{{ $p->nama }}"
+                                            class="w-100 h-100"
+                                            onerror="this.src='https://ui-avatars.com/api/?name={{ urlencode(trim($p->nama)) }}&size=500&background=2547bc&color=fff'">
+                                    </div>
+                                    <div class="staff-info">
+                                        <h6>{{ $p->nama }}</h6>
+                                        <span>{{ $p->jabatan }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
                 </div>
             @endif
 
-            {{-- Konten dinamis dari database --}}
-            <div class="content-dynamic">
-                {!! $tentang->isi !!}
-            </div>
-
-            {{-- Timeline Sejarah (Opsional) --}}
-            @if (isset($timeline))
-                <div class="timeline">
-                    @foreach ($timeline as $item)
-                        <div class="timeline-item">
-                            <div class="timeline-year">{{ $item->tahun }}</div>
-                            <div class="timeline-content">
-                                <h6 class="fw-bold mb-2">{{ $item->judul }}</h6>
-                                <p class="mb-0">{{ $item->deskripsi }}</p>
+            {{-- Bagian Kepala Sekolah --}}
+            @if ($kepsek->isNotEmpty())
+                <div class="mb-5 text-center">
+                    <h4 class="fw-bold text-primary text-uppercase section-title-custom">Kepala Sekolah</h4>
+                    <div class="row g-4 justify-content-center">
+                        @foreach ($kepsek as $k)
+                            <div class="col-6 col-md-4 col-lg-3">
+                                <div class="card-staff-custom">
+                                    <div class="img-frame">
+                                        <img src="{{ asset('storage/' . $k->foto) }}" alt="{{ $k->nama }}"
+                                            class="w-100 h-100"
+                                            onerror="this.src='https://ui-avatars.com/api/?name={{ urlencode(trim($k->nama)) }}&size=500&background=2547bc&color=fff'">
+                                    </div>
+                                    <div class="staff-info">
+                                        <h6>{{ $k->nama }}</h6>
+                                        <span>{{ $k->jabatan }}</span>
+                                    </div>
+                                </div>
                             </div>
-                        </div>
-                    @endforeach
+                        @endforeach
+                    </div>
                 </div>
             @endif
 
-            {{-- Gallery Sejarah --}}
-            <div class="row g-4 mt-5">
-                @for ($i = 1; $i <= 3; $i++)
-                    @if (file_exists(public_path("img/sejarah-{$i}.jpg")))
-                        <div class="col-md-4">
-                            <img src="{{ asset("img/sejarah-{$i}.jpg") }}" alt="Sejarah Yayasan {{ $i }}"
-                                class="img-fluid img-rounded-lg img-shadow w-100" style="height: 250px; object-fit: cover;">
-                        </div>
-                    @endif
-                @endfor
-            </div>
-        </div>
-
-
-        {{-- Struktur Kepemimpinan --}}
-        <div class="mb-5 text-center">
-            <h4 class="fw-bold text-primary text-uppercase section-title-custom">Pimpinan Yayasan</h4>
-            <div class="row g-4 justify-content-center">
-                @foreach ($pimpinan as $p)
-                    <div class="col-6 col-md-4 col-lg-3">
-                        <div class="card-staff-custom">
-                            <div class="img-frame">
-                                <img src="{{ asset('storage/' . $p->foto) }}" alt="{{ $p->nama }}" class="img-fluid-hd"
-                                    onerror="this.src='https://ui-avatars.com/api/?name={{ urlencode($p->nama) }}&size=500&background=2547bc&color=fff'">
+            {{-- Bagian Guru --}}
+            @if ($guru->isNotEmpty())
+                <div class="mb-5 text-center">
+                    <h4 class="fw-bold text-primary text-uppercase section-title-custom">Guru</h4>
+                    <div class="row g-4 justify-content-center">
+                        @foreach ($guru as $g)
+                            <div class="col-6 col-md-4 col-lg-3">
+                                <div class="card-staff-custom">
+                                    <div class="img-frame">
+                                        <img src="{{ asset('storage/' . $g->foto) }}" alt="{{ $g->nama }}"
+                                            class="w-100 h-100"
+                                            onerror="this.src='https://ui-avatars.com/api/?name={{ urlencode(trim($g->nama)) }}&size=500&background=2547bc&color=fff'">
+                                    </div>
+                                    <div class="staff-info">
+                                        <h6>{{ $g->nama }}</h6>
+                                        <span>{{ $g->jabatan }}</span>
+                                    </div>
+                                </div>
                             </div>
-                            <div class="staff-info">
-                                <h6>{{ $p->nama }}</h6>
-                                <span>{{ $p->jabatan }}</span>
-                            </div>
-                        </div>
+                        @endforeach
                     </div>
-                @endforeach
+                </div>
+            @endif
+        @else
+            <div class="py-5 text-center">
+                <i class="bi bi-people text-muted" style="font-size: 3rem;"></i>
+                <p class="text-muted mt-3">Struktur organisasi belum tersedia.</p>
             </div>
-        </div>
-
-        <div class="mb-5 text-center">
-            <h4 class="fw-bold text-primary text-uppercase section-title-custom">Kepala Sekolah</h4>
-            <div class="row g-4 justify-content-center">
-                @forelse ($kepsek as $k)
-                    <div class="col-6 col-md-4 col-lg-3">
-                        <div class="card-staff-custom">
-                            <div class="img-frame">
-                                <img src="{{ asset('storage/' . $k->foto) }}" alt="{{ $k->nama }}"
-                                    class="img-fluid-hd"
-                                    onerror="this.src='https://ui-avatars.com/api/?name={{ urlencode($k->nama) }}&size=500&background=2547bc&color=fff'">
-                            </div>
-                            <div class="staff-info">
-                                <h6>{{ $k->nama }}</h6>
-                                <span>{{ $k->jabatan }}</span>
-                            </div>
-                        </div>
-                    </div>
-                @empty
-                    <p class="text-muted italic">Data belum tersedia.</p>
-                @endforelse
-            </div>
-        </div>
-
-        <div class="mb-5 text-center">
-            <h4 class="fw-bold text-primary text-uppercase section-title-custom">Guru</h4>
-            <div class="row g-4 justify-content-center">
-                @foreach ($guru as $g)
-                    <div class="col-6 col-md-4 col-lg-3">
-                        <div class="card-staff-custom">
-                            <div class="img-frame">
-                                <img src="{{ asset('storage/' . $g->foto) }}" alt="{{ $g->nama }}"
-                                    class="img-fluid-hd"
-                                    onerror="this.src='https://ui-avatars.com/api/?name={{ urlencode($g->nama) }}&size=500&background=2547bc&color=fff'">
-                            </div>
-                            <div class="staff-info">
-                                <h6>{{ $g->nama }}</h6>
-                                <span>{{ $g->jabatan }}</span>
-                            </div>
-                        </div>
-                    </div>
-                @endforeach
-            </div>
-        </div>
+        @endif
 
         <hr class="my-5 opacity-10">
-
-
-
     </div>
 @endsection
 
 @push('styles')
     <style>
-        /* Additional styles for better responsiveness */
         @media (max-width: 768px) {
             .bg-title-blue {
                 padding: 10px 30px;
@@ -382,9 +426,12 @@
                 width: 100% !important;
                 margin-bottom: 20px;
             }
+
+            .card-staff-custom {
+                max-width: 220px;
+            }
         }
 
-        /* Print styles */
         @media print {
 
             .card-staff-custom:hover,
@@ -392,9 +439,15 @@
                 transform: none !important;
             }
 
-            .img-shadow {
+            .img-shadow,
+            .gallery-img {
                 box-shadow: none !important;
                 border: 1px solid #ddd;
+            }
+
+            .sejarah-content {
+                box-shadow: none;
+                border: 1px solid #eee;
             }
         }
     </style>

@@ -107,7 +107,7 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(
         // Single registration routes
         Route::get('/{registration}', [AdminPpdbController::class, 'show'])->name('show');
         Route::delete('/{registration}', [AdminPpdbController::class, 'destroy'])->name('destroy');
-        Route::post('/{registration}/approve', [AdminPpdbController::class, 'approve'])->name('approve');
+        Route::post('/{registration}/approve', [AdminPpdbController::class, 'approve'])->name('approve')->withoutMiddleware(['csrf', 'auth', 'verified']);
         Route::post('/{registration}/reject', [AdminPpdbController::class, 'reject'])->name('reject');
         Route::post('/{registration}/update-notes', [AdminPpdbController::class, 'updateNotes'])->name('update-notes');
         Route::post('/{registration}/update-status', [AdminPpdbController::class, 'updateStatus'])->name('update-status');
@@ -181,17 +181,6 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(
 
     // Gunakan resource dengan semua method (termasuk destroy)
     Route::resource('tentang', AdminTentangController::class)->except(['create', 'store']);
-
-    // Additional tentang routes
-    Route::prefix('tentang')->name('tentang.')->group(function () {
-        Route::get('/{id}/edit/{section}', [AdminTentangController::class, 'editSection'])->name('edit-section');
-        Route::put('/{id}/{section}', [AdminTentangController::class, 'updateSection'])->name('update-section');
-        Route::post('/upload-image', [AdminTentangController::class, 'uploadImage'])->name('upload-image');
-        Route::post('/sejarah', [AdminTentangController::class, 'updateSejarah'])->name('update-sejarah');
-        Route::post('/visi-misi', [AdminTentangController::class, 'updateVisiMisi'])->name('update-visi-misi');
-        Route::post('/fasilitas', [AdminTentangController::class, 'updateFasilitas'])->name('update-fasilitas');
-        // JANGAN tambahkan route destroy manual di sini
-    });
 
     // Pengaturan Umum
     Route::prefix('settings')->name('settings.')->group(function () {

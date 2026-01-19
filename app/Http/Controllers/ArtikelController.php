@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Artikel;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class ArtikelController extends Controller
 {
@@ -139,10 +141,20 @@ class ArtikelController extends Controller
         }
 
         $artikel->incrementViews();
+        // Gunakan Storage disk 'public' untuk mengunduh file yang tersimpan di storage/app/public
+        if (!Storage::disk('public')->exists($artikel->file_pdf)) {
+            abort(404);
+        }
+
+        // Unduh langsung dari filesystem untuk menghindari error metadata Flysystem
+        $fullPath = storage_path('app/public/' . $artikel->file_pdf);
+        if (!file_exists($fullPath)) {
+            abort(404);
+        }
 
         return response()->download(
-            storage_path('app/public/' . $artikel->file_pdf),
-            \Illuminate\Support\Str::slug($artikel->judul) . '.pdf'
+            $fullPath,
+            Str::slug($artikel->judul) . '.pdf'
         );
     }
 
