@@ -6,7 +6,6 @@ use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 
-// ✅ MODEL HARUS SINGULAR
 use App\Models\User;
 use App\Models\Artikel;
 use App\Models\Galeri;
@@ -19,6 +18,20 @@ class DatabaseSeeder extends Seeder
     {
         /**
          * ==========================
+         * SUPERADMIN USER
+         * ==========================
+         */
+        User::updateOrCreate(
+            ['email' => 'superadmin@yayasan.com'],
+            [
+                'name' => 'Superadmin Yayasan',
+                'role' => 'superadmin', // ✅ Ini kuncinya!
+                'password' => Hash::make('password123'),
+            ]
+        );
+
+        /**
+         * ==========================
          * ADMIN USER
          * ==========================
          */
@@ -26,6 +39,7 @@ class DatabaseSeeder extends Seeder
             ['email' => 'admin@yayasan.com'],
             [
                 'name' => 'Admin Yayasan',
+                'role' => 'admin', // ✅ Tambahkan role eksplisit
                 'password' => Hash::make('password123'),
             ]
         );
@@ -154,7 +168,9 @@ class DatabaseSeeder extends Seeder
         );
 
         $this->command->info('✅ Seeding completed successfully!');
+        $this->command->info('📧 Superadmin Email: superadmin@yayasan.com');
+        $this->command->info('🔑 Superadmin Password: password123');
         $this->command->info('📧 Admin Email: admin@yayasan.com');
-        $this->command->info('🔑 Password: password123');
+        $this->command->info('🔑 Admin Password: password123');
     }
 }

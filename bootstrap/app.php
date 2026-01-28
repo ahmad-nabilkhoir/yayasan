@@ -11,10 +11,19 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+
+        // ✅ Global middleware
         $middleware->use([
             \App\Http\Middleware\Cors::class,
+        ]);
+
+        // ✅ DAFTARKAN ALIAS MIDDLEWARE DI SINI (WAJIB Laravel 12)
+        $middleware->alias([
+            'admin.superadmin' => \App\Http\Middleware\EnsureAdminOrSuperadmin::class,
+            'superadmin'       => \App\Http\Middleware\EnsureSuperadmin::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //
-    })->create();
+    })
+    ->create();

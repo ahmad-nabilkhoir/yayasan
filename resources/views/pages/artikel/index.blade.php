@@ -203,7 +203,7 @@
                     <div class="row g-4 justify-content-center">
                         @forelse($artikel as $item)
                             <div class="col-lg-6">
-                                <div class="article-card bg-white">
+                                <div class="article-card h-100 d-flex flex-column bg-white">
                                     {{-- Container Gambar --}}
                                     <div class="p-4 pb-0">
                                         <div class="img-container">
@@ -217,7 +217,6 @@
                                             </div>
 
                                             {{-- Badge Tanggal --}}
-                                            {{-- PERBAIKAN: Gunakan published_at atau created_at --}}
                                             <div class="date-badge">
                                                 @php
                                                     $dateToShow = $item->published_at ?? $item->created_at;
@@ -228,7 +227,7 @@
                                     </div>
 
                                     {{-- Konten Teks --}}
-                                    <div class="p-4">
+                                    <div class="flex-grow-1 d-flex flex-column p-4">
                                         {{-- Judul --}}
                                         <h2 class="article-title fs-4 fw-bold lh-base mb-3">
                                             <a href="{{ route('artikel.show', $item->slug) }}"
@@ -263,22 +262,19 @@
                                         @endif
 
                                         {{-- Ringkasan --}}
-                                        <p class="text-muted mb-4 line-clamp-3">
+                                        <p class="text-muted flex-grow-1 mb-4 line-clamp-3">
                                             {{ $item->ringkasan ?? Str::limit(strip_tags($item->isi), 130) }}
                                         </p>
 
                                         {{-- Footer Card --}}
-                                        <div class="d-flex justify-content-between align-items-center border-top pt-3">
+                                        <div
+                                            class="d-flex justify-content-between align-items-center border-top mt-auto pt-3">
                                             {{-- Info Tanggal & Views --}}
-                                            <div class="text-muted small d-flex align-items-center">
+                                            <div class="text-muted small">
                                                 @php
                                                     $dateForInfo = $item->published_at ?? $item->created_at;
                                                 @endphp
-                                                <i class="bi bi-calendar3 me-2"></i>
-                                                {{ $dateForInfo->format('d M Y') }}
-                                                <span class="ms-3">
-                                                    <i class="bi bi-eye me-1"></i> {{ $item->views }}
-                                                </span>
+                                                {{ $dateForInfo->format('d M Y') }} • {{ $item->views }} views
                                             </div>
 
                                             {{-- Tombol Read More/PDF --}}
